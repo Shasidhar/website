@@ -3,8 +3,8 @@
 	<channel>
 		<title>Shashidhar</title>
 		<description>Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.</description>
-		<link>https://shasidhar.github.io/website</link>
-		<atom:link href="https://shasidhar.github.io/website/feed.xml" rel="self" type="application/rss+xml" />
+		<link>https://github.com/shasidhar/personal-jekyll-theme</link>
+		<atom:link href="https://github.com/shasidhar/personal-jekyll-theme/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
 				<title>Apache Spark Performance Tuning</title>
@@ -15,8 +15,8 @@
 </description>
 				
 				<pubDate>Tue, 03 Nov 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhar.github.io/website/spark/2015/11/03/apache-spark-performance-tuning.html</link>
-				<guid isPermaLink="true">https://shasidhar.github.io/website/spark/2015/11/03/apache-spark-performance-tuning.html</guid>
+				<link>https://github.com/shasidhar/personal-jekyll-theme/spark/2015/11/03/apache-spark-performance-tuning.html</link>
+				<guid isPermaLink="true">https://github.com/shasidhar/personal-jekyll-theme/spark/2015/11/03/apache-spark-performance-tuning.html</guid>
 			</item>
 		
 			<item>
@@ -28,8 +28,8 @@
 </description>
 				
 				<pubDate>Tue, 27 Oct 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhar.github.io/website/jekyll/update/2015/10/27/distributed-configuration-management-with-zookeeper.html</link>
-				<guid isPermaLink="true">https://shasidhar.github.io/website/jekyll/update/2015/10/27/distributed-configuration-management-with-zookeeper.html</guid>
+				<link>https://github.com/shasidhar/personal-jekyll-theme/jekyll/update/2015/10/27/distributed-configuration-management-with-zookeeper.html</link>
+				<guid isPermaLink="true">https://github.com/shasidhar/personal-jekyll-theme/jekyll/update/2015/10/27/distributed-configuration-management-with-zookeeper.html</guid>
 			</item>
 		
 			<item>
@@ -41,8 +41,8 @@
 </description>
 				
 				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhar.github.io/website/jekyll/update/2015/01/30/secondary-sorting--in-hadoop.html</link>
-				<guid isPermaLink="true">https://shasidhar.github.io/website/jekyll/update/2015/01/30/secondary-sorting--in-hadoop.html</guid>
+				<link>https://github.com/shasidhar/personal-jekyll-theme/jekyll/update/2015/01/30/secondary-sorting--in-hadoop.html</link>
+				<guid isPermaLink="true">https://github.com/shasidhar/personal-jekyll-theme/jekyll/update/2015/01/30/secondary-sorting--in-hadoop.html</guid>
 			</item>
 		
 			<item>
@@ -54,8 +54,8 @@
 </description>
 				
 				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhar.github.io/website/jekyll/update/2015/01/30/hadoop-history.html</link>
-				<guid isPermaLink="true">https://shasidhar.github.io/website/jekyll/update/2015/01/30/hadoop-history.html</guid>
+				<link>https://github.com/shasidhar/personal-jekyll-theme/jekyll/update/2015/01/30/hadoop-history.html</link>
+				<guid isPermaLink="true">https://github.com/shasidhar/personal-jekyll-theme/jekyll/update/2015/01/30/hadoop-history.html</guid>
 			</item>
 		
 	</channel>
