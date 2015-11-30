@@ -10,7 +10,7 @@
 				<title>Apache Spark Performance Tuning</title>
 				
 				
-					<description>&lt;p&gt;As Apache Spark is the popular framework now a days for Big Data solutions,in this blog we will try to analyse different key factors that can be used to improve the performace of Spark application in production. Spark applications can be improved if we look into the following factors&lt;/p&gt;
+					<description>&lt;p&gt;As we all know Apache Spark is the  most popular framework now a days for Big Data solutions, in this blog we will try to analyse different key factors that can be used to improve the performance of Spark applications in production.&lt;/p&gt;
 
 </description>
 				
