@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/website/jekyll/update/2015/01/30/hadoop-history.html">
-  <title>Shashidhar  | Hadoop history</title>
+  <link rel="canonical" href="/website/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html">
+  <title>Shashidhar  | Understanding Mapreduce idea</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -161,37 +161,97 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1 class="text-center"><strong>Hadoop history</strong></h1>
-          <h4><strong>30 Jan 2015</strong>
-            <!-- <small> .  . <a href="/website/jekyll/update/2015/01/30/hadoop-history.html#disqus_thread">Comments</a>
+          <h1 class="text-center"><strong>Understanding Mapreduce idea</strong></h1>
+          <h4><strong>31 Jan 2015</strong>
+            <!-- <small> .  . <a href="/website/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>Apache Hadoop is an open source software project that enables distributed processing of large data sets across clusters of commodity servers. It is designed to scale up from a single server to thousands of machines, with a very high degree of fault tolerance.</p>
+          <p>In my previous blog we have seen about the concept of Map reduce and its implementation in Hadoop. This blog illustrates how the idea of Mapreduce can be achieved in both simple java program as well as in hadoop. It lays out the different pieces of hadoop Mapreduce implementation for better understanding. Now, let’s go further and understand the idea of Map reduce by writing simple java program and analyse the solution.</p>
 
-<p>Let’s briefly know how Hadoop evolved.</p>
+<h3 id="problem-statement--given-a-collection-of-sales-find-frequency-of-each-item">Problem Statement : Given a collection of sales find frequency of each item</h3>
 
-<p>Hadoop was created by Doug cutting, the creator of Apache Lucene , which is the widely used text searching library.</p>
+<h4 id="solution-1--simple-java-way">Solution 1 : Simple Java way</h4>
 
-<p>Doug cutting was ambitious about building a web search engine from scratch because of two aspects,</p>
+<p>Take the input file.Parse each line of sale and add each item to the HashMap&lt;String,Long&gt;.If the item alredy presents in map increase the count for the item in HashMap</p>
 
-<ol>
-  <li>Its a very complex engine with moving parts which requires an operational team.</li>
-  <li>It involves a very difficult software design.</li>
-</ol>
+<pre>
+<code data-trim="" class="javascript">
 
-<p>Hence, he started to write his own web search engine along with his colleague Mike ,they named it as <strong>Nutch</strong>. However, Doug cutting was sure that his project cannot scale to millions of pages in web. That is when in 2003 a revolutionary paper came out from Google regarding their distributed file system called <strong>Google File System</strong> , which was used in their production.</p>
+  String filePath = args[0];
+  BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath));
+  String line;
+  Map&lt;String,Long&gt; countValues = new HashMap&lt;String,Long&gt;();
+      while ((line=bufferedReader.readLine())!=null) {
+          String columns[] = line.split(",");
+          String item = columns[2];
+          if(!countValues.containsKey(item)){
+                countValues.put(item,1L);
+          } else {
+             long currentCount = countValues.get(item);
+             countValues.put(item,currentCount+1);
+           }
+          }
+  System.out.println(countValues);
+</code>
+</pre>
 
-<p>The Google file system was very efficient in solving time consuming administrative tasks like storage nodes management etc, they realised their project Nutch also requires this kind of file system. Hence, in 2004 they set out to implement the same idea for open source, called Nutch Distributed System.</p>
+<p>There are two issues with this approach.</p>
 
-<p>By the time they had their first working version, Google introduced the idea of <strong>Map Reduce</strong> to the world i.e., in 2004.That seemed to be a very good idea for Doug, within 2005 every task in Nutch was using <strong>Map Reduce</strong>.</p>
+<ul>
+  <li>It is not following mapreduce algorithm for solving the given problem</li>
+  <li>We cannot scale it for the large data.</li>
+</ul>
 
-<p>Both <strong>NDFS</strong> and <strong>Map Reduce</strong> were beyond the realm of search. Further, in 2006 they moved out of Nutch and started to create an independent sub-project under Lucene called as <strong>Hadoop</strong>. At the same time Doug cutting went to work with Yahoo!, which provided a dedicated team and the resources to turn Hadoop into a system that ran web at scale .This was demonstrated in 2008 and Yahoo announced to the world that, its search engine works on 10000 node Hadoop cluster.</p>
+<p>So its obvious now to have the next solution which takes mapreduce path.</p>
 
-<p>In 2008 Hadoop became an independent project under Apache license confirming its own success and strong developer community. By this time, Hadoop was used by many of the companies like Facebook, New York Times etc. Hadoop broke the world record by sorting a terabyte of data, running 900 node clusters to sort 1 terabyte of data in 200 seconds. Later a team at Yahoo! used Map Reduce to sort the same amount of data , it was only in 62 seconds.</p>
+<h4 id="solution-2--solution-using-mr-algorithm">Solution 2 : Solution using M/R algorithm</h4>
 
-<p>These kinds of results and bench markings show the incredible underlying capabilities of the Hadoop.</p>
+<p>In highlevel <strong>MapReduce Algorithm</strong> can be described in following steps</p>
+
+<ul>
+  <li>Take each line and split into columns.</li>
+  <li>For each word output =&gt; (word,1)</li>
+  <li>Group output by key</li>
+  <li>Total all the one’s to get final sum</li>
+</ul>
+
+<p>Refer <a href="https://github.com/Shasidhar/mr_in_java/blob/master/src/main/java/com/shashidhar/mrinjava/MapReduceMain.java">MapReduceMain</a> for code.
+This is in mapreduce way but it is not yet parallel in nature.</p>
+
+<p>So next step is to implement the same idea using java threadpools.</p>
+
+<h4 id="solution-3--make-the-java-program-parallel">Solution 3 : Make the java program parallel</h4>
+
+<p>We take the same idea of solution 2 but we run two mappers now. Line number determines which mapper a line is sent for processing.All lines with linenumber less than 10 to mapper-1 and lines with linenumber more than 10 to mapper-2.</p>
+
+<p>We create a thread pool using java executer service and add our two mappers into this thread pool. Once we add our mappers we will shutdown the executor so that no other process is added to executor service.</p>
+
+<p>Next we will block the main program until all the mapper tasks are completed, since we know we should not start reduce until all map operations is done.</p>
+
+<p>Once mappers are completed we will add all the map results, and perform the group operation.
+After grouping we will perform the reduce operation.</p>
+
+<p>Refer <a href="https://github.com/Shasidhar/mr_in_java/blob/master/src/main/java/com/shashidhar/mrinjava/MapReduceMainParallel.java">MapReduceMainParallel</a> for code.</p>
+
+<p>As we observe here we still get the same result even though we run mappers in two different threads. This is the main idea behind map reduce in hadoop.</p>
+
+<p><em>So lets not waste time and start looking into the mapreduce in hadoop</em></p>
+
+<h4 id="map-reduce-in-hadoop">Map reduce in hadoop</h4>
+
+<ul>
+  <li>Phase 1: Splitting</li>
+  <li>Phase 2: Assign map tasks based on data locality</li>
+  <li>Phase 3: Map output is sorted and stored in local file system of the node to avoid un necessary replication in hdfs</li>
+  <li>Phase 4: Shuffling, as soon as one mapper writes output to local file reducer calls shuffling. Shuffling is nothing but copying the map output files to reduce instance</li>
+  <li>Phase 5: Merging , is the process of merging the map output files into one file.</li>
+  <li>Phase 6: Grouping, is the process of grouping the map output based on map output key. It generates the reducer input [mapOutputKey,List[Values]]</li>
+  <li>Phase 7: Reduce , final phase where reducer logic written by the user is applied on the each group of the unique map output key.</li>
+</ul>
+
+<p><em>This blog illustrates how the idea of mapreduce can be achieved even without use of hadoop in Simple java. It lays out different components of hadoop mapreduce implementation for better understanding</em></p>
 
 
 
@@ -286,7 +346,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Hadoop history', 'https://shasidhar.github.io/website/jekyll/update/2015/01/30/hadoop-history.html');
+    history.pushState({}, 'Understanding Mapreduce idea', 'https://shasidhar.github.io/website/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html');
   }
 }
 </script>

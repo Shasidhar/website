@@ -33,6 +33,19 @@
 			</item>
 		
 			<item>
+				<title>Understanding Mapreduce idea</title>
+				
+				
+					<description>&lt;p&gt;In my previous blog we have seen about the concept of Map reduce and its implementation in Hadoop. This blog illustrates how the idea of Mapreduce can be achieved in both simple java program as well as in hadoop. It lays out the different pieces of hadoop Mapreduce implementation for better understanding. Now, let’s go further and understand the idea of Map reduce by writing simple java program and analyse the solution.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
+				<link>https://shasidhar.github.io/website/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html</link>
+				<guid isPermaLink="true">https://shasidhar.github.io/website/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html</guid>
+			</item>
+		
+			<item>
 				<title>Secondary Sorting in Hadoop</title>
 				
 				
