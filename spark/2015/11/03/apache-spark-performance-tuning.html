@@ -191,7 +191,7 @@
 </ul>
 
 <pre>
-<code data-trim="" class="Scala">
+<code data-trim="" class="javascript">
  val conf = new SparkConf()
  conf.set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
 </code>
@@ -202,7 +202,7 @@
 </ul>
 
 <pre>
-<code data-trim="" class="Scala">
+<code data-trim="" class="javascript">
  conf.set("spark.kryo.registrattionRequired","true")
  conf.registerKryoClasses(Array(classOf[*yourClass*],classOf[*yourClass1*]))
 </code>
@@ -347,13 +347,6 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
   </script>
 
 
-
-
-
-  <!-- Syntax highlight in post pages-->
-
-  <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/highlight.min.js"></script>
-  <script>hljs.initHighlightingOnLoad();</script>
 
 
 
