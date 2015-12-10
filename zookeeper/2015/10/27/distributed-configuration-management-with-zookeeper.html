@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2015/11/03/apache-spark-performance-tuning.html">
-  <title>Shashidhar  | Apache Spark Performance Tuning</title>
+  <link rel="canonical" href="/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html">
+  <title>Shashidhar  | Zookeeper - Dynamic Configuration Source with Archaius</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -161,111 +161,78 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Apache Spark Performance Tuning</strong></h1>
-          <h4><strong>03 Nov 2015</strong>
-            <!-- <small> .  . <a href="/spark/2015/11/03/apache-spark-performance-tuning.html#disqus_thread">Comments</a>
+          <h1><strong>Zookeeper - Dynamic Configuration Source with Archaius</strong></h1>
+          <h4><strong>27 Oct 2015</strong>
+            <!-- <small> .  . <a href="/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>As we all know Apache Spark is the  most popular framework now a days for Big Data solutions, in this blog we will try to analyse different key factors that can be used to improve the performance of Spark applications in production.</p>
+          <p>Dynamic configuration is the ability to change the configuration while system is running. Archaius is the configuration management library which can retrieve properties from several sources and load them into the system dynamically.For a distributed system Apache Zookeeper is the default coordination service. This blog shows</p>
 
-<p>Below factors play vital role in improving performance of Spark applications.</p>
+<p><em>How can we create custom listeners for the changes in zookeeper configuration using Zookeeper Watches</em></p>
 
-<h3 id="quantity-of-the-data-shuffled">Quantity of the data shuffled</h3>
-
-<p>As we know, shuffle is the most costly operation in Spark which involves movement of the data in the cluster. You should always try to decrease size of data for shuffling to increase application performance. One common solution to achieve this is, always filter data before shuffle phase rather than after.</p>
-
-<h3 id="degree-of-parallelism">Degree of Parallelism</h3>
-
-<p>Always try to avoid the empty partitions. Generally if we have a filtering operation the result of the filtering operation reduces the size of data. If the filter operation is explicitly selective then there is always a chance that filtering operation ends up giving some of the partitions with very less data or sometimes no data. As soon as the size of data per partition decreases the situation arises where, time to launch the tasks for the empty partitions becomes overhead and reduces the performance significantly. Solution here is to use coalesce operation and reduce number of partitions after filtering.</p>
-
-<p>If your job is taking a long time and your cluster is not utilised completely, try to use <strong>repartition</strong> operation. Repartitioning allows you to increase/decrease the number of partitions of your job. In this case try to increase the number of partitions so that cluster is used efficiently. It might be expensive operation because when you call repartition some data is shuffled across the cluster. But if the operation you are doing is expensive and if you can use your empty cluster cores to parallelise the process, it can be beneficiary to call <strong>repartition</strong> on your data.</p>
-
-<h3 id="choice-of-serializer">Choice of serializer</h3>
-
-<p>In spark serialization happens whenever we perform <strong>*cache</strong> and <strong>shuffle</strong> operations. As I have already mentioned shuffle is the most costly operation in Spark. By default Spark uses java serialization which is very robust and has support for all types of data but it is very slow. Apart from this, spark has built in support for Kryo serialization. Kryo serialization is faster and has out of the box support inside Spark. To use it follow the below steps</p>
+<p>To accomplish the above task we need to have to components</p>
 
 <ul>
-  <li>Change the spark configuration settings to use <strong>Kryo</strong> serializer.</li>
+  <li>ZookeeperConfigSource</li>
+  <li>ZookeeperUpdateListener</li>
 </ul>
 
-<pre>
-<code data-trim="" class="javascript">
- val conf = new SparkConf()
- conf.set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
-</code>
-</pre>
+<p>Project code can be accessed in <a href="https://github.com/Shasidhar/zookeeper_dynamic_config_source_with_archaius">GitHub</a></p>
+
+<h3 id="zookeeperconfigsource">ZookeeperConfigSource</h3>
+
+<p>Here we are going to use apache curator framework for zookeeper related operations. We need to specify parent node,like <code>/&lt;app&gt;/config</code> as the root node which acts as a parent for all configurations. As you know the data in zookeeper is stored in <code>ZNodes</code> and each <code>ZNode</code> is a node in Zookeeper’s tree similar to a filesystem.</p>
+
+<p>This component initiates listeners on the node specified above with the curator client. By doing so, we can get an update in the listeners whenever data changes under <code>/&lt;app&gt;/config</code>. To accomplish this we use <code>PathChildrenCache</code> recipe from curator framework. This recipe allows us to have listeners and customize them.</p>
+
+<p>Steps:</p>
 
 <ul>
-  <li>Register all the classes which are serialized. Registration helps kryo to reduce the amount of metadata written as part of the serialization and decreases unwanted overhead. This adds up some of the boiler plate code inside your application.</li>
+  <li>Create a Zookeeper Config Source of type <code>WatchedConfigurationSource</code> provided by Archaius.</li>
+  <li>Override 3 methods <code>getCurrentData</code>,<code>addUpdateListener</code>,<code>addUpdateListener</code></li>
+  <li>Define a method to catch different actions and trigger an event</li>
 </ul>
 
-<pre>
-<code data-trim="" class="javascript">
- conf.set("spark.kryo.registrattionRequired","true")
- conf.registerKryoClasses(Array(classOf[*yourClass*],classOf[*yourClass1*]))
-</code>
-</pre>
+<p>Refer <a href="https://github.com/Shasidhar/zookeeper_dynamic_config_source_with_archaius/blob/master/src/main/scala/com/shashidhar/zookeeper/ZookeeperConfigSource.scala">ZookeeperConfigSource</a> for code.</p>
 
-<h3 id="cache-format">Cache Format</h3>
+<h3 id="zookeeperupdatelistener">ZookeeperUpdateListener</h3>
+<p>We need to extend <code>WatchedUpdateListener</code> interface provided by archaius library and override <code>updateConfiguration</code> method.When ever a change occurs in the source on which this listener is configured the <code>updateConfiguration</code> event is trigerred.</p>
 
-<p>In Spark whenever we cache the data it is stored using <strong>MEMORY_ONLY</strong> level in the form of deserialized JVM objects. This is very fast in the performance perspective, because it can be retrieved directly without any cost. It has some side effects, one of them being increase in the GC pressure as there is lot of data sitting inside your cache.</p>
-
-<p>To reduce the side effects of <em>cache</em> spark provides two more levels of caching.</p>
+<p>Steps:</p>
 
 <ul>
-  <li>
-    <p>MEMORY_ONLY_SER - This mode decreases GC problems by saving all of the objects in serialized format as one object from the perspective of java memory management. The only trade off here is, since data is stored in serialized format spark does deserialization on the fly to access data. This can be quite time consuming than the other one.</p>
-  </li>
-  <li>
-    <p>MEMORY_AND_DISK - It avoids recomputation of the cached data whenever we access the data from disk. The only trade off here is , since we are hitting disk for the data it will be slow.</p>
-  </li>
+  <li>Create a listener for ZookeeperConfigSource</li>
+  <li>Start the listeners for ZookeeperConfigSource</li>
+  <li>Listen for updates in <code>updateConfiguration</code>.</li>
+  <li>Perform requried action in <code>updateConfiguration</code> method.</li>
 </ul>
 
-<h3 id="other-aspects">Other aspects</h3>
+<p>Refer <a href="https://github.com/Shasidhar/zookeeper_dynamic_config_source_with_archaius/blob/master/src/main/scala/com/shashidhar/zookeeper/ZookeeperUpdateListener.scala">ZookeeperUpdateListener</a> for code.</p>
 
-<ul>
-  <li>
-    <p>Even though spark is a horizontally scalable engine, it is good to have more number of executors with optimal heap size rather than having executors with more memory. The optimum size of an executor is 64GB.</p>
-  </li>
-  <li>
-    <p>Use LZF compression to improve shuffle performace.</p>
-  </li>
-</ul>
+<p>Finally we have to bind the Source and Listener.</p>
 
 <pre>
 <code data-trim="" class="Scala">
- conf.set("spark.io.compression.codec","lzf")
-</code>
-</pre>
 
-<ul>
-  <li>Turn on speculative execution to help prevent stragglers.</li>
-</ul>
+    object ZookeeperMain {
+      def main(args: Array[String]) {
+        //root node on which we want to listen
+        val zkConnectionString = "/<app>/config"
+        //Create curator client for the zookeeper
+        val client = CuratorFrameworkFactory.newClient(zkConnectionString,
+        new ExponentialBackoffRetry(1000, 3))
+        //Create zookeeper source
+        val source = new ZookeeperConfigSource(client,zkConnectionString)
+        //Create listener object
+        val listener = new ZookeeperUpdateListener(source)
+        listener.init()
+      }
+    }
 
-<pre>
-<code data-trim="" class="Scala">
- conf.set("spark.speculation","true")
-</code>
-</pre>
 
-<ul>
-  <li>Make sure spark has enough disks to store the shuffled data. Normally spark tries to move data across disks if memory runs out. It is set using following properties</li>
-</ul>
-
-<ol>
-  <li>
-    <p>In YARN mode, inherits YARN’s local directories</p>
-  </li>
-  <li>
-    <p>SPARK_LOCAL_DIRS in mesos/standalone mode</p>
-  </li>
-</ol>
-
-<p><strong>Note</strong> All the above mentioned tweaks may not yield performance improvement in every spark application. The main aim of this blog is to provide an overview of pinpoints where one can improve the performance of spark application.</p>
-
-<p>Hope you enjoyed reading this blog and it benefits you.</p>
+</app></code></pre>
 
 
 
@@ -369,7 +336,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Apache Spark Performance Tuning', 'https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html');
+    history.pushState({}, 'Zookeeper - Dynamic Configuration Source with Archaius', 'https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html');
   }
 }
 </script>

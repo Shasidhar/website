@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2015/11/03/apache-spark-performance-tuning.html">
-  <title>Shashidhar  | Apache Spark Performance Tuning</title>
+  <link rel="canonical" href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html">
+  <title>Shashidhar  | Secondary Sorting in Hadoop</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -161,111 +161,86 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Apache Spark Performance Tuning</strong></h1>
-          <h4><strong>03 Nov 2015</strong>
-            <!-- <small> .  . <a href="/spark/2015/11/03/apache-spark-performance-tuning.html#disqus_thread">Comments</a>
+          <h1><strong>Secondary Sorting in Hadoop</strong></h1>
+          <h4><strong>30 Jan 2015</strong>
+            <!-- <small> .  . <a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>As we all know Apache Spark is the  most popular framework now a days for Big Data solutions, in this blog we will try to analyse different key factors that can be used to improve the performance of Spark applications in production.</p>
+          <p>I have read many blog’s about secondary sorting when I was learning hadoop. Most of these blogs tries to explain it conceptually which is not sufficient as it is kind of hack in hadoop. In this blog let’s see how that can be understood in a better way .We see how data changes internally in each step of secondary sort.</p>
 
-<p>Below factors play vital role in improving performance of Spark applications.</p>
+<p>Let’s consider the problem statement given below and solve it with secondary sort.</p>
 
-<h3 id="quantity-of-the-data-shuffled">Quantity of the data shuffled</h3>
+<p><strong>We have a sales data where there are three columns <code>customerId, itemId, amountPaid</code> with these three columns what we want to is the maximum amount paid by the customer for a single item</strong></p>
 
-<p>As we know, shuffle is the most costly operation in Spark which involves movement of the data in the cluster. You should always try to decrease size of data for shuffling to increase application performance. One common solution to achieve this is, always filter data before shuffle phase rather than after.</p>
+<h4 id="example-data"><strong>Example data</strong></h4>
 
-<h3 id="degree-of-parallelism">Degree of Parallelism</h3>
+<table>
+  <thead>
+    <tr>
+      <th style="text-align: center">CustomerId</th>
+      <th style="text-align: center">ItemId</th>
+      <th style="text-align: center">AmountPaid</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">100</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">200</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">3</td>
+      <td style="text-align: center">1000</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">400</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">1</td>
+      <td style="text-align: center">5</td>
+      <td style="text-align: center">350</td>
+    </tr>
+    <tr>
+      <td style="text-align: center">2</td>
+      <td style="text-align: center">6</td>
+      <td style="text-align: center">800</td>
+    </tr>
+  </tbody>
+</table>
 
-<p>Always try to avoid the empty partitions. Generally if we have a filtering operation the result of the filtering operation reduces the size of data. If the filter operation is explicitly selective then there is always a chance that filtering operation ends up giving some of the partitions with very less data or sometimes no data. As soon as the size of data per partition decreases the situation arises where, time to launch the tasks for the empty partitions becomes overhead and reduces the performance significantly. Solution here is to use coalesce operation and reduce number of partitions after filtering.</p>
+<p>For this problem the basic solution is to write map-reduce where mapper will emit <code>key: customerId, value: amountPaid</code>. We get all the amountPaid values for each customer in reduce side. We can easily sort these values by using any sorting technique in reducer.</p>
 
-<p>If your job is taking a long time and your cluster is not utilised completely, try to use <strong>repartition</strong> operation. Repartitioning allows you to increase/decrease the number of partitions of your job. In this case try to increase the number of partitions so that cluster is used efficiently. It might be expensive operation because when you call repartition some data is shuffled across the cluster. But if the operation you are doing is expensive and if you can use your empty cluster cores to parallelise the process, it can be beneficiary to call <strong>repartition</strong> on your data.</p>
+<p>But as I mentioned we want to solve it in a different way. Now, think of mapreduce frame work in hadoop, how it works. We all have heard about the word sorting in hadoop mapreduce framework. Yes, right!! All the map output keys are sorted by default in hadoop.</p>
 
-<h3 id="choice-of-serializer">Choice of serializer</h3>
+<p>Secondary sort is an idea where we keep map output key such a way that we get only required keys in the reduce side, other keys are ignored. To do this we have to make our key value pair from  <code>key:customerId,value:amountPaid</code>  to  	<code>key:&lt;customerId,amountPaid&gt;, 	value:NullWritable</code>.</p>
 
-<p>In spark serialization happens whenever we perform <strong>*cache</strong> and <strong>shuffle</strong> operations. As I have already mentioned shuffle is the most costly operation in Spark. By default Spark uses java serialization which is very robust and has support for all types of data but it is very slow. Apart from this, spark has built in support for Kryo serialization. Kryo serialization is faster and has out of the box support inside Spark. To use it follow the below steps</p>
+<p>There are three main phases in mapreduce between mapper and reduce stages, and we have to manipulate all of them to have our solution.</p>
 
-<ul>
-  <li>Change the spark configuration settings to use <strong>Kryo</strong> serializer.</li>
-</ul>
+<p><strong>Sorting</strong> : Sorting happens after mapper is finished with all input data. To have our composite key sorted in the required order, customerId by (ascending) and amountPaid by (descending) order, we have to overwrite sorting for compositeKey.</p>
 
-<pre>
-<code data-trim="" class="javascript">
- val conf = new SparkConf()
- conf.set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
-</code>
-</pre>
+<p><em>Output</em> : <code>&lt;1,1000&gt;,&lt;1,400&gt;,&lt;1,350&gt;,&lt;1,100&gt;,&lt;2,800&gt;,&lt;2,200&gt;</code></p>
 
-<ul>
-  <li>Register all the classes which are serialized. Registration helps kryo to reduce the amount of metadata written as part of the serialization and decreases unwanted overhead. This adds up some of the boiler plate code inside your application.</li>
-</ul>
+<p><strong>Partitioning</strong> : Partitioning determines the reducer for every map-output key. If we leave out composite key here each key can go to different reducer, but we want all the keys for a particular customer should go to the single reducer. To do that we have to overwrite partitioning method. Lets think we have two reducers in our mapreduce job then the output would be,</p>
 
-<pre>
-<code data-trim="" class="javascript">
- conf.set("spark.kryo.registrattionRequired","true")
- conf.registerKryoClasses(Array(classOf[*yourClass*],classOf[*yourClass1*]))
-</code>
-</pre>
+<p><em>Output</em> : <code>reducer1: &lt;1,1000&gt;,&lt;1,400&gt;,&lt;1,350&gt;,&lt;1,100&gt;</code>
+		   <code>reducer2:  &lt;2,800&gt;,&lt;2,200&gt;</code></p>
 
-<h3 id="cache-format">Cache Format</h3>
+<p><strong>Grouping</strong>: “Grouping” groups all the map-output key value pairs of the mapper to generate single key with group of value input for the reducer. In our output we still have 4 distinct keys for customerId 1 and 2 distinct keys for customerId 2. But we want only the key with maximum amount to be selected for reduce function ignoring all other keys. To do that we have to overwrite grouping. By default grouping uses complete key <code>&lt;customerId,amountPaid&gt;</code> for grouping, we change it to use only <code>customerId</code> from our key.</p>
 
-<p>In Spark whenever we cache the data it is stored using <strong>MEMORY_ONLY</strong> level in the form of deserialized JVM objects. This is very fast in the performance perspective, because it can be retrieved directly without any cost. It has some side effects, one of them being increase in the GC pressure as there is lot of data sitting inside your cache.</p>
+<p><em>Output</em> : <code>&lt;1,1000&gt;</code>
+		   <code>&lt;2,800&gt;</code></p>
 
-<p>To reduce the side effects of <em>cache</em> spark provides two more levels of caching.</p>
-
-<ul>
-  <li>
-    <p>MEMORY_ONLY_SER - This mode decreases GC problems by saving all of the objects in serialized format as one object from the perspective of java memory management. The only trade off here is, since data is stored in serialized format spark does deserialization on the fly to access data. This can be quite time consuming than the other one.</p>
-  </li>
-  <li>
-    <p>MEMORY_AND_DISK - It avoids recomputation of the cached data whenever we access the data from disk. The only trade off here is , since we are hitting disk for the data it will be slow.</p>
-  </li>
-</ul>
-
-<h3 id="other-aspects">Other aspects</h3>
-
-<ul>
-  <li>
-    <p>Even though spark is a horizontally scalable engine, it is good to have more number of executors with optimal heap size rather than having executors with more memory. The optimum size of an executor is 64GB.</p>
-  </li>
-  <li>
-    <p>Use LZF compression to improve shuffle performace.</p>
-  </li>
-</ul>
-
-<pre>
-<code data-trim="" class="Scala">
- conf.set("spark.io.compression.codec","lzf")
-</code>
-</pre>
-
-<ul>
-  <li>Turn on speculative execution to help prevent stragglers.</li>
-</ul>
-
-<pre>
-<code data-trim="" class="Scala">
- conf.set("spark.speculation","true")
-</code>
-</pre>
-
-<ul>
-  <li>Make sure spark has enough disks to store the shuffled data. Normally spark tries to move data across disks if memory runs out. It is set using following properties</li>
-</ul>
-
-<ol>
-  <li>
-    <p>In YARN mode, inherits YARN’s local directories</p>
-  </li>
-  <li>
-    <p>SPARK_LOCAL_DIRS in mesos/standalone mode</p>
-  </li>
-</ol>
-
-<p><strong>Note</strong> All the above mentioned tweaks may not yield performance improvement in every spark application. The main aim of this blog is to provide an overview of pinpoints where one can improve the performance of spark application.</p>
-
-<p>Hope you enjoyed reading this blog and it benefits you.</p>
+<p>If we look into result of grouping, we are getting only the composite key with maximum amountPaid for each customer. There we got solution for our problem!!!</p>
 
 
 
@@ -369,7 +344,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Apache Spark Performance Tuning', 'https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html');
+    history.pushState({}, 'Secondary Sorting in Hadoop', 'https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html');
   }
 }
 </script>

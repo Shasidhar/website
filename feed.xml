@@ -28,21 +28,34 @@
 </description>
 				
 				<pubDate>Tue, 27 Oct 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/jekyll/update/2015/10/27/distributed-configuration-management-with-zookeeper.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/jekyll/update/2015/10/27/distributed-configuration-management-with-zookeeper.html</guid>
+				<link>https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html</guid>
 			</item>
 		
 			<item>
 				<title>Understanding Mapreduce idea</title>
 				
 				
-					<description>&lt;p&gt;In my previous blog we have seen about the concept of Map reduce and its implementation in Hadoop. This blog illustrates how the idea of Mapreduce can be achieved in both simple java program as well as in hadoop. It lays out the different pieces of hadoop Mapreduce implementation for better understanding. Now, let’s go further and understand the idea of Map reduce by writing simple java program and analyse the solution.&lt;/p&gt;
+					<description>&lt;p&gt;In my previous blog we have seen about the concept of Map reduce. This blog illustrates how the idea of Mapreduce can be achieved in simple java programs and then we take a step ahead to understand how it is implemented in hadoop. It lays out the different components of hadoop Mapreduce implementation for better understanding. Now, let’s go further and understand the idea of Map reduce by writing simple java program and analyse the solution.&lt;/p&gt;
 
 </description>
 				
 				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/jekyll/update/2015/01/31/understanding-mapreduce-idea-.html</guid>
+				<link>https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html</guid>
+			</item>
+		
+			<item>
+				<title>Mapreduce History</title>
+				
+				
+					<description>&lt;p&gt;In this blog, lets look into the roots of Map Reduce idea. From where does the idea of Map-Reduce came and some background history about it.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/hadoop/2015/01/31/map%20reduce-history.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/31/map%20reduce-history.html</guid>
 			</item>
 		
 			<item>
@@ -54,8 +67,8 @@
 </description>
 				
 				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/jekyll/update/2015/01/30/secondary-sorting--in-hadoop.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/jekyll/update/2015/01/30/secondary-sorting--in-hadoop.html</guid>
+				<link>https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html</guid>
 			</item>
 		
 			<item>
@@ -67,8 +80,8 @@
 </description>
 				
 				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/jekyll/update/2015/01/30/hadoop-history.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/jekyll/update/2015/01/30/hadoop-history.html</guid>
+				<link>https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html</guid>
 			</item>
 		
 	</channel>

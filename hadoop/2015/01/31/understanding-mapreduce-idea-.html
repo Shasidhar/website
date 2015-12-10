@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2015/11/03/apache-spark-performance-tuning.html">
-  <title>Shashidhar  | Apache Spark Performance Tuning</title>
+  <link rel="canonical" href="/hadoop/2015/01/31/understanding-mapreduce-idea-.html">
+  <title>Shashidhar  | Understanding Mapreduce idea</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -161,111 +161,99 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Apache Spark Performance Tuning</strong></h1>
-          <h4><strong>03 Nov 2015</strong>
-            <!-- <small> .  . <a href="/spark/2015/11/03/apache-spark-performance-tuning.html#disqus_thread">Comments</a>
+          <h1><strong>Understanding Mapreduce idea</strong></h1>
+          <h4><strong>31 Jan 2015</strong>
+            <!-- <small> .  . <a href="/hadoop/2015/01/31/understanding-mapreduce-idea-.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>As we all know Apache Spark is the  most popular framework now a days for Big Data solutions, in this blog we will try to analyse different key factors that can be used to improve the performance of Spark applications in production.</p>
+          <p>In my previous blog we have seen about the concept of Map reduce. This blog illustrates how the idea of Mapreduce can be achieved in simple java programs and then we take a step ahead to understand how it is implemented in hadoop. It lays out the different components of hadoop Mapreduce implementation for better understanding. Now, let’s go further and understand the idea of Map reduce by writing simple java program and analyse the solution.</p>
 
-<p>Below factors play vital role in improving performance of Spark applications.</p>
+<p>Lets take a problem statement we want to solve to understand Map Reduce.</p>
 
-<h3 id="quantity-of-the-data-shuffled">Quantity of the data shuffled</h3>
+<p><strong><em>Problem Statement : Given a collection of sales find frequency of each item</em></strong></p>
 
-<p>As we know, shuffle is the most costly operation in Spark which involves movement of the data in the cluster. You should always try to decrease size of data for shuffling to increase application performance. One common solution to achieve this is, always filter data before shuffle phase rather than after.</p>
+<p>We will have three different implementations of solving the problem mentioned above.</p>
 
-<h3 id="degree-of-parallelism">Degree of Parallelism</h3>
+<h4 id="solution-1--simple-java-way">Solution 1 : Simple Java way</h4>
 
-<p>Always try to avoid the empty partitions. Generally if we have a filtering operation the result of the filtering operation reduces the size of data. If the filter operation is explicitly selective then there is always a chance that filtering operation ends up giving some of the partitions with very less data or sometimes no data. As soon as the size of data per partition decreases the situation arises where, time to launch the tasks for the empty partitions becomes overhead and reduces the performance significantly. Solution here is to use coalesce operation and reduce number of partitions after filtering.</p>
-
-<p>If your job is taking a long time and your cluster is not utilised completely, try to use <strong>repartition</strong> operation. Repartitioning allows you to increase/decrease the number of partitions of your job. In this case try to increase the number of partitions so that cluster is used efficiently. It might be expensive operation because when you call repartition some data is shuffled across the cluster. But if the operation you are doing is expensive and if you can use your empty cluster cores to parallelise the process, it can be beneficiary to call <strong>repartition</strong> on your data.</p>
-
-<h3 id="choice-of-serializer">Choice of serializer</h3>
-
-<p>In spark serialization happens whenever we perform <strong>*cache</strong> and <strong>shuffle</strong> operations. As I have already mentioned shuffle is the most costly operation in Spark. By default Spark uses java serialization which is very robust and has support for all types of data but it is very slow. Apart from this, spark has built in support for Kryo serialization. Kryo serialization is faster and has out of the box support inside Spark. To use it follow the below steps</p>
-
-<ul>
-  <li>Change the spark configuration settings to use <strong>Kryo</strong> serializer.</li>
-</ul>
+<p>Take the input file.Parse each line of sale and add each item to the HashMap&lt;String,Long&gt;.If the item alredy presents in map increase the count for the item in HashMap</p>
 
 <pre>
 <code data-trim="" class="javascript">
- val conf = new SparkConf()
- conf.set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
+
+  String filePath = args[0];
+  BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath));
+  String line;
+  Map&lt;String,Long&gt; countValues = new HashMap&lt;String,Long&gt;();
+      while ((line=bufferedReader.readLine())!=null) {
+          String columns[] = line.split(",");
+          String item = columns[2];
+          if(!countValues.containsKey(item)){
+                countValues.put(item,1L);
+          } else {
+             long currentCount = countValues.get(item);
+             countValues.put(item,currentCount+1);
+           }
+          }
+  System.out.println(countValues);
 </code>
 </pre>
 
-<ul>
-  <li>Register all the classes which are serialized. Registration helps kryo to reduce the amount of metadata written as part of the serialization and decreases unwanted overhead. This adds up some of the boiler plate code inside your application.</li>
-</ul>
-
-<pre>
-<code data-trim="" class="javascript">
- conf.set("spark.kryo.registrattionRequired","true")
- conf.registerKryoClasses(Array(classOf[*yourClass*],classOf[*yourClass1*]))
-</code>
-</pre>
-
-<h3 id="cache-format">Cache Format</h3>
-
-<p>In Spark whenever we cache the data it is stored using <strong>MEMORY_ONLY</strong> level in the form of deserialized JVM objects. This is very fast in the performance perspective, because it can be retrieved directly without any cost. It has some side effects, one of them being increase in the GC pressure as there is lot of data sitting inside your cache.</p>
-
-<p>To reduce the side effects of <em>cache</em> spark provides two more levels of caching.</p>
+<p>There are two issues with this approach.</p>
 
 <ul>
-  <li>
-    <p>MEMORY_ONLY_SER - This mode decreases GC problems by saving all of the objects in serialized format as one object from the perspective of java memory management. The only trade off here is, since data is stored in serialized format spark does deserialization on the fly to access data. This can be quite time consuming than the other one.</p>
-  </li>
-  <li>
-    <p>MEMORY_AND_DISK - It avoids recomputation of the cached data whenever we access the data from disk. The only trade off here is , since we are hitting disk for the data it will be slow.</p>
-  </li>
+  <li>It is not following mapreduce algorithm for solving the given problem</li>
+  <li>We cannot scale it for the large data.</li>
 </ul>
 
-<h3 id="other-aspects">Other aspects</h3>
+<p>So its obvious now to have the next solution which takes mapreduce path.</p>
+
+<h4 id="solution-2--solution-using-mr-algorithm">Solution 2 : Solution using M/R algorithm</h4>
+
+<p>In highlevel <strong>MapReduce Algorithm</strong> can be described in following steps</p>
 
 <ul>
-  <li>
-    <p>Even though spark is a horizontally scalable engine, it is good to have more number of executors with optimal heap size rather than having executors with more memory. The optimum size of an executor is 64GB.</p>
-  </li>
-  <li>
-    <p>Use LZF compression to improve shuffle performace.</p>
-  </li>
+  <li>Take each line and split into columns.</li>
+  <li>For each word output =&gt; (word,1)</li>
+  <li>Group output by key</li>
+  <li>Total all the one’s to get final sum</li>
 </ul>
 
-<pre>
-<code data-trim="" class="Scala">
- conf.set("spark.io.compression.codec","lzf")
-</code>
-</pre>
+<p>Refer <a href="https://github.com/Shasidhar/mr_in_java/blob/master/src/main/java/com/shashidhar/mrinjava/MapReduceMain.java">MapReduceMain</a> for code.
+This is in mapreduce way but it is not yet parallel in nature.</p>
+
+<p>So next step is to implement the same idea using java threadpools.</p>
+
+<h4 id="solution-3--make-the-java-program-parallel">Solution 3 : Make the java program parallel</h4>
+
+<p>We take the same idea of solution 2 but we run two mappers now. Line number determines which mapper a line is sent for processing.All lines with linenumber less than 10 to mapper-1 and lines with linenumber more than 10 to mapper-2.</p>
+
+<p>We create a thread pool using java executer service and add our two mappers into this thread pool. Once we add our mappers we will shutdown the executor so that no other process is added to executor service.</p>
+
+<p>Next we will block the main program until all the mapper tasks are completed, since we know we should not start reduce until all map operations is done.</p>
+
+<p>Once mappers are completed we will add all the map results, and perform the group operation.
+After grouping we will perform the reduce operation.</p>
+
+<p>Refer <a href="https://github.com/Shasidhar/mr_in_java/blob/master/src/main/java/com/shashidhar/mrinjava/MapReduceMainParallel.java">MapReduceMainParallel</a> for code.</p>
+
+<p>As we observe here we still get the same result even though we run mappers in two different threads. This is the main idea behind map reduce in hadoop.</p>
+
+<p><em>So lets not waste time and start looking into the mapreduce in hadoop</em></p>
+
+<h4 id="map-reduce-in-hadoop">Map reduce in hadoop</h4>
 
 <ul>
-  <li>Turn on speculative execution to help prevent stragglers.</li>
+  <li>Phase 1: Splitting</li>
+  <li>Phase 2: Assign map tasks based on data locality</li>
+  <li>Phase 3: Map output is sorted and stored in local file system of the node to avoid un necessary replication in hdfs</li>
+  <li>Phase 4: Shuffling, as soon as one mapper writes output to local file reducer calls shuffling. Shuffling is nothing but copying the map output files to reduce instance</li>
+  <li>Phase 5: Merging , is the process of merging the map output files into one file.</li>
+  <li>Phase 6: Grouping, is the process of grouping the map output based on map output key. It generates the reducer input [mapOutputKey,List[Values]]</li>
+  <li>Phase 7: Reduce , final phase where reducer logic written by the user is applied on the each group of the unique map output key.</li>
 </ul>
-
-<pre>
-<code data-trim="" class="Scala">
- conf.set("spark.speculation","true")
-</code>
-</pre>
-
-<ul>
-  <li>Make sure spark has enough disks to store the shuffled data. Normally spark tries to move data across disks if memory runs out. It is set using following properties</li>
-</ul>
-
-<ol>
-  <li>
-    <p>In YARN mode, inherits YARN’s local directories</p>
-  </li>
-  <li>
-    <p>SPARK_LOCAL_DIRS in mesos/standalone mode</p>
-  </li>
-</ol>
-
-<p><strong>Note</strong> All the above mentioned tweaks may not yield performance improvement in every spark application. The main aim of this blog is to provide an overview of pinpoints where one can improve the performance of spark application.</p>
-
-<p>Hope you enjoyed reading this blog and it benefits you.</p>
 
 
 
@@ -369,7 +357,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Apache Spark Performance Tuning', 'https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html');
+    history.pushState({}, 'Understanding Mapreduce idea', 'https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html');
   }
 }
 </script>
