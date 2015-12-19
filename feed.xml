@@ -20,6 +20,19 @@
 			</item>
 		
 			<item>
+				<title>Machine Learning in Spark</title>
+				
+				
+					<description>&lt;p&gt;In software industry with adoption of Hadoop, data scientists are in high demand. There is a well known fact that people from data science background always face difficulty to apply data science on bigdata due to lack of bigdata knowledge and people from programming background face the same when they try data science on bigdata due to lack of data science knowledge. Here we are seeing two different set of people whose end goal &lt;strong&gt;Machine Learning on Big Data&lt;/strong&gt; appears similar. So we try to solve this and give you the correct steps to get started in this regard.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Sat, 31 Oct 2015 02:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html</guid>
+			</item>
+		
+			<item>
 				<title>Zookeeper - Dynamic Configuration Source with Archaius</title>
 				
 				
@@ -82,19 +95,6 @@
 				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html</guid>
-			</item>
-		
-			<item>
-				<title>Machine Learning in Spark</title>
-				
-				
-					<description>&lt;p&gt;In software industry with adoption of Hadoop, data scientists are in high demand. There is a well known fact that people from data science background always face difficulty to apply data science on bigdata due to lack of bigdata knowledge and people from programming background face the same when they try data science on bigdata due to lack of data science knowledge. Here we are seeing two different set of people whose end goal &lt;strong&gt;Machine Learning on Big Data&lt;/strong&gt; appears similar. So we try to solve this and give you the correct steps to get started in this regard.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Thu, 06 Feb 2014 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/spark/2014/02/06/machine-learning-in-spark.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/spark/2014/02/06/machine-learning-in-spark.html</guid>
 			</item>
 		
 	</channel>

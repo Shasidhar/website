@@ -1,5 +1,5 @@
 
-<!-- Blog Layout Start -->
+<!-- Post Layout Start -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/blog/">
-  <title>Shashidhar  | Blog</title>
+  <link rel="canonical" href="/spark/2015/10/31/machine-learning-in-spark.html">
+  <title>Shashidhar  | Machine Learning in Spark</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -65,11 +65,16 @@
   
 
 
+  <!-- Syntax highlight in post pages -->
+
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/monokai_sublime.min.css">
+
+
+
 
 </head>
 
 <!-- HEAD End -->
-
 
   <body>
 
@@ -106,7 +111,7 @@
             <li>
             
               
-                <a class="page-scroll" href="#page"> Blog </a>
+                <a href="/blog/"> Blog </a>
               
             
             </li>
@@ -138,12 +143,11 @@
 <!-- Navigation End -->
 
 
-    <section id="page" class="container content-section text-center">
-
+    <section id="post" class="container content-section">
       <div class="row">
-        <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+        <div class="col-md-10 col-md-offset-1">
 
-        
+          
 <!-- Swipe Instructions Start -->
 
 <div id="swipe-instruction">
@@ -152,12 +156,12 @@
     <i id="hand-swipe" class="fa fa-hand-o-up"></i>
     <p><strong>
     
-      Did you know that you can navigate the archive pages by swiping left and right?
+      Did you know that you can navigate the posts by swiping left and right?
     
     </strong></p>
     <button type="button" class="btn btn-default ok-btn close-swipe-instruction">
       
-        Got it!
+        Awesome!
       
     </button>
   </div>
@@ -166,153 +170,36 @@
 <!-- Swipe Instructions End -->
 
 
-        <h2 id="blog">Blog</h2>
-
-
-        <div>
-          
+          <h1><strong>Machine Learning in Spark</strong></h1>
+          <h4><strong>31 Oct 2015</strong>
+            <!-- <small> .  . <a href="/spark/2015/10/31/machine-learning-in-spark.html#disqus_thread">Comments</a>
             
-<!-- Post List Start -->
+            </small> -->
+          </h4>
 
-<h4 align="left">
-  <strong>03 Nov 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/spark/2015/11/03/apache-spark-performance-tuning.html">
-    <strong>Apache Spark Performance Tuning</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/spark/2015/11/03/apache-spark-performance-tuning.html#disqus_thread">Comments</a></small> -->
-</h4>
+          <p>In software industry with adoption of Hadoop, data scientists are in high demand. There is a well known fact that people from data science background always face difficulty to apply data science on bigdata due to lack of bigdata knowledge and people from programming background face the same when they try data science on bigdata due to lack of data science knowledge. Here we are seeing two different set of people whose end goal <strong>Machine Learning on Big Data</strong> appears similar. So we try to solve this and give you the correct steps to get started in this regard.</p>
 
-<!-- Post List End -->
+<h3 id="where-to-start-machine-learning">Where to start Machine Learning?</h3>
 
-          
-            
-<!-- Post List Start -->
+<p>I started following Machine Learning course <a href="https://www.coursera.org/learn/machine-learning">Stanford Machine Learning</a> in coursera, where they implement ML algorithms in Octave - a tool similar to Matlab for implementing algorithms. This course covers all the basic algorithms of machine learning in great depth. Octave is not enough to get started in bigdata as it is limited . We need the something similar which can work for Big-Data . So we thought of solving the same exercises on Spark. My team from Zinnia Systems wanted to put forward our machine learning work through our <a href="https://github.com/zinniasystems/spark-ml-class">GitHub repository</a>. Our repository contains all the exercises ported from octave to spark, of the above mentioned course. I hope it will accelerate your Machine Learning on Bigdata at higher speeds, when you start learning by comparing octave and spark code.</p>
 
-<h4 align="left">
-  <strong>31 Oct 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/spark/2015/10/31/machine-learning-in-spark.html">
-    <strong>Machine Learning in Spark</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/spark/2015/10/31/machine-learning-in-spark.html#disqus_thread">Comments</a></small> -->
-</h4>
+<h3 id="why-spark">Why Spark?</h3>
 
-<!-- Post List End -->
+<p>With the advent of <a href="http://spark.apache.org/">Spark</a> on big-data, gap between data scientists and the programming communities started decreasing very quickly. One thing­­ that kept Spark ahead of all other big-data frameworks is its basic design ideas of framework like, high emphasis on iterative algorithms and in-memory processing to achieve the landmark “100x faster than Hadoop”. When we started working with spark we felt very much fond of RDD (Resilient Distributed Datasets) which are basically distributed immutable collections acting as basic abstraction in framework. Along with this Spark also provides more complex operations like joins , group-by and reduce-by which are very handy in forming complex model data-flows without iterations. By this time you would be aware of the fact that the most happening thing in big-data is machine learning on Spark. So, our team from Zinnia Sytems started the machine learning on Spark.</p>
+
+<h3 id="machine-learning-library-mllib">Machine Learning Library (MLLIB)</h3>
+
+<p>Everybody who tries to start using machine learning in Spark will end up in <a href="http://spark.apache.org/docs/latest/mllib-guide.html">MLLIB</a> . In fact MLLIB is the fastest growing community with more than 137 active contributors. It has already pushed Apache-Mahout to back seat in developing machine learning algorithms. MLLIB already includes algorithms like Linear Regression and Logistic Regression using Stochastic Gradient Descent, K-Means, Recommender Systems and Linear Support Vector Machines etc.It is not a better practice to start implementing the algorithms as we are seeing there are active people who are putting their work forward ,only after they test them in adequate conditions. So, here comes my team to help you in using the MLLIB from the first day. We give you the basic programs to use all algorithms in MLLIB in one shot though our repo.</p>
+
+<p><em>I hope it will be a very interesting journey. You would be amazed to start your nightmare of Machine Learning on bigdata using Spark.You must be excited to start this venture!!!!!</em></p>
+
+
 
           
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>27 Oct 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html">
-    <strong>Zookeeper - Dynamic Configuration Source with Archaius</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
+          <br><br>
+          <div id="disqus_thread"></div>
+          <br><br>
           
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>31 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/31/understanding-mapreduce-idea-.html">
-    <strong>Understanding Mapreduce idea</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/31/understanding-mapreduce-idea-.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
-          
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>31 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/31/map%20reduce-history.html">
-    <strong>Mapreduce History</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/31/map%20reduce-history.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
-          
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>30 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html">
-    <strong>Secondary Sorting in Hadoop</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
-          
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>30 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/30/hadoop-history.html">
-    <strong>Hadoop history</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/30/hadoop-history.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
-          
-        </div>
-
-        
-<!-- Pagination Links Start -->
-
-<div class="pagination">
-
-  <h4>
-
-  
-
-  
-
-  
-
-  </h4>
-
-</div>
-
-<!-- Pagination Links End -->
-
-
-        
 <!-- Social Buttons Start -->
 <style>
 .social-buttons {
@@ -341,20 +228,7 @@
         </div>
       </div>
     </section>
-
     
- <!-- Footer Start -->
-
-<footer>
-    <div class="container text-center">
-      <!-- <p>Copyright &copy; Shashidhar 2015</p> -->
-    </div>
-</footer>
-
-<p><br><br><br><br><br><br></p>
-
-<!-- Footer End -->
-
 
     
 <!-- Javascript Start -->
@@ -392,10 +266,29 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 
 
 
+  <!-- Syntax highlight in post pages
+
+  <script src="/js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>-->
+
+
+
+
 
 
 
   <!-- Disqus -->
+
+  
+
+    <script type="text/javascript">
+    var disqus_shortname = 'shashidhare';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
 
   
 
@@ -424,71 +317,81 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 
 
 
+  <!-- Share buttons Start -->
+
+  <script src="/js/rrssb.min.js"></script>
+
+  <!-- Share buttons End -->
+
+
+
 
 
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Blog', 'https://shasidhare.com/blog/index.html');
+    history.pushState({}, 'Machine Learning in Spark', 'https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html');
   }
 }
 </script>
 
 
 
-
-
-  <!-- Blog Gesture Navigation Start -->
+  <!-- Post Gesture Navigation Start -->
 
   <script type="text/javascript" src="/js/hammer.min.js"></script>
 
   <script>
-    var page = document.getElementById('page');
+    var post = document.getElementById('post');
 
-    new Hammer(page).on('swipeleft', function(event) {
+    new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("");
+        document.location.replace("/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html");
       
     });
-    new Hammer(page).on('swiperight', function(event) {
+
+    new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("");
+        document.location.replace("/spark/2015/11/03/apache-spark-performance-tuning.html");
       
     });
   </script>
 
-  <!-- Blog Gesture Navigation Start -->
+  <!-- Post Gesture Navigation Start -->
 
 
 
 
 
-  <!-- Swipe Instructions for Blog Start -->
+
+
+
+
+  <!-- Swipe Instructions for Post Start -->
 
   <script>
     $(document).ready(function(){
-      if(!localStorage.getItem('blog-swipeshowed')){
+      if(!localStorage.getItem('post-swipeshowed')){
         $("#swipe-instruction").fadeIn();
         $("#swipe-instruction .close-swipe-instruction").click(function(){
           $("#swipe-instruction").fadeOut();
         });
-        localStorage.setItem('blog-swipeshowed', true);
+        localStorage.setItem('post-swipeshowed', true);
       }
     });
   </script>
 
-  <!-- Swipe Instructions for Blog End -->
-
-
+  <!-- Swipe Instructions for Post End -->
 
 
 
 <!-- Javascript End -->
 
 
+
   </body>
 </html>
 
-<!-- Blog Layout End -->
+<!-- Post Layout End -->
