@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/hadoop/2015/01/30/hadoop-history.html">
-  <title>Shashidhar  | Hadoop history</title>
+  <link rel="canonical" href="/spark/2014/02/06/machine-learning-in-spark.html">
+  <title>Shashidhar  | Machine Learning in Spark</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,37 +170,28 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Hadoop history</strong></h1>
-          <h4><strong>30 Jan 2015</strong>
-            <!-- <small> .  . <a href="/hadoop/2015/01/30/hadoop-history.html#disqus_thread">Comments</a>
+          <h1><strong>Machine Learning in Spark</strong></h1>
+          <h4><strong>06 Feb 2014</strong>
+            <!-- <small> .  . <a href="/spark/2014/02/06/machine-learning-in-spark.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>Apache Hadoop is an open source software project that enables distributed processing of large data sets across clusters of commodity servers. It is designed to scale up from a single server to thousands of machines, with a very high degree of fault tolerance.</p>
+          <p>In software industry with adoption of Hadoop, data scientists are in high demand. There is a well known fact that people from data science background always face difficulty to apply data science on bigdata due to lack of bigdata knowledge and people from programming background face the same when they try data science on bigdata due to lack of data science knowledge. Here we are seeing two different set of people whose end goal <strong>Machine Learning on Big Data</strong> appears similar. So we try to solve this and give you the correct steps to get started in this regard.</p>
 
-<p>Let’s briefly know how Hadoop evolved.</p>
+<h3 id="where-to-start-machine-learning">Where to start Machine Learning?</h3>
 
-<p>Hadoop was created by Doug cutting, the creator of Apache Lucene , which is the widely used text searching library.</p>
+<p>I started following Machine Learning course <a href="https://www.coursera.org/learn/machine-learning">Stanford Machine Learning</a> in coursera, where they implement ML algorithms in Octave - a tool similar to Matlab for implementing algorithms. This course covers all the basic algorithms of machine learning in great depth. Octave is not enough to get started in bigdata as it is limited . We need the something similar which can work for Big-Data . So we thought of solving the same exercises on Spark. My team from Zinnia Systems wanted to put forward our machine learning work through our <a href="https://github.com/zinniasystems/spark-ml-class">GitHub repository</a>. Our repository contains all the exercises ported from octave to spark, of the above mentioned course. I hope it will accelerate your Machine Learning on Bigdata at higher speeds, when you start learning by comparing octave and spark code.</p>
 
-<p>Doug cutting was ambitious about building a web search engine from scratch because of two aspects,</p>
+<h3 id="why-spark">Why Spark?</h3>
 
-<ol>
-  <li>Its a very complex engine with moving parts which requires an operational team.</li>
-  <li>It involves a very difficult software design.</li>
-</ol>
+<p>With the advent of <a href="http://spark.apache.org/">Spark</a> on big-data, gap between data scientists and the programming communities started decreasing very quickly. One thing­­ that kept Spark ahead of all other big-data frameworks is its basic design ideas of framework like, high emphasis on iterative algorithms and in-memory processing to achieve the landmark “100x faster than Hadoop”. When we started working with spark we felt very much fond of RDD (Resilient Distributed Datasets) which are basically distributed immutable collections acting as basic abstraction in framework. Along with this Spark also provides more complex operations like joins , group-by and reduce-by which are very handy in forming complex model data-flows without iterations. By this time you would be aware of the fact that the most happening thing in big-data is machine learning on Spark. So, our team from Zinnia Sytems started the machine learning on Spark.</p>
 
-<p>Hence, he started to write his own web search engine along with his colleague Mike ,they named it as <strong>Nutch</strong>. However, Doug cutting was sure that his project cannot scale to millions of pages in web. That is when in 2003 a revolutionary paper came out from Google regarding their distributed file system called <strong>Google File System</strong> , which was used in their production.</p>
+<h3 id="machine-learning-library-mllib">Machine Learning Library (MLLIB)</h3>
 
-<p>The Google file system was very efficient in solving time consuming administrative tasks like storage nodes management etc, they realised their project Nutch also requires this kind of file system. Hence, in 2004 they set out to implement the same idea for open source, called Nutch Distributed System.</p>
+<p>Everybody who tries to start using machine learning in Spark will end up in <a href="http://spark.apache.org/docs/latest/mllib-guide.html">MLLIB</a> . In fact MLLIB is the fastest growing community with more than 137 active contributors. It has already pushed Apache-Mahout to back seat in developing machine learning algorithms. MLLIB already includes algorithms like Linear Regression and Logistic Regression using Stochastic Gradient Descent, K-Means, Recommender Systems and Linear Support Vector Machines etc.It is not a better practice to start implementing the algorithms as we are seeing there are active people who are putting their work forward ,only after they test them in adequate conditions. So, here comes my team to help you in using the MLLIB from the first day. We give you the basic programs to use all algorithms in MLLIB in one shot though our repo.</p>
 
-<p>By the time they had their first working version, Google introduced the idea of <strong>Map Reduce</strong> to the world i.e., in 2004.That seemed to be a very good idea for Doug, within 2005 every task in Nutch was using <strong>Map Reduce</strong>.</p>
-
-<p>Both <strong>NDFS</strong> and <strong>Map Reduce</strong> were beyond the realm of search. Further, in 2006 they moved out of Nutch and started to create an independent sub-project under Lucene called as <strong>Hadoop</strong>. At the same time Doug cutting went to work with Yahoo!, which provided a dedicated team and the resources to turn Hadoop into a system that ran web at scale .This was demonstrated in 2008 and Yahoo announced to the world that, its search engine works on 10000 node Hadoop cluster.</p>
-
-<p>In 2008 Hadoop became an independent project under Apache license confirming its own success and strong developer community. By this time, Hadoop was used by many of the companies like Facebook, New York Times etc. Hadoop broke the world record by sorting a terabyte of data, running 900 node clusters to sort 1 terabyte of data in 200 seconds. Later a team at Yahoo! used Map Reduce to sort the same amount of data , it was only in 62 seconds.</p>
-
-<p>These kinds of results and bench markings show the incredible underlying capabilities of the Hadoop.</p>
+<p><em>I hope it will be a very interesting journey. You would be amazed to start your nightmare of Machine Learning on bigdata using Spark.You must be excited to start this venture!!!!!</em></p>
 
 
 
@@ -350,7 +341,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Hadoop history', 'https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html');
+    history.pushState({}, 'Machine Learning in Spark', 'https://shasidhare.com/spark/2014/02/06/machine-learning-in-spark.html');
   }
 }
 </script>
@@ -367,14 +358,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2014/02/06/machine-learning-in-spark.html");
+        document.location.replace("");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/hadoop/2015/01/30/secondary-sorting--in-hadoop.html");
+        document.location.replace("/hadoop/2015/01/30/hadoop-history.html");
       
     });
   </script>
