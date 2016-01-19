@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2015/11/03/apache-spark-performance-tuning.html">
-  <title>Shashidhar  | Apache Spark Performance Tuning</title>
+  <link rel="canonical" href="/spark/2016/01/20/unit-test-spark-streaming-receiver.html">
+  <title>Shashidhar  | Unit testing Spark Streaming Receiver</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,111 +170,108 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Apache Spark Performance Tuning</strong></h1>
-          <h4><strong>03 Nov 2015</strong>
-            <!-- <small> .  . <a href="/spark/2015/11/03/apache-spark-performance-tuning.html#disqus_thread">Comments</a>
+          <h1><strong>Unit testing Spark Streaming Receiver</strong></h1>
+          <h4><strong>20 Jan 2016</strong>
+            <!-- <small> .  . <a href="/spark/2016/01/20/unit-test-spark-streaming-receiver.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>As we all know Apache Spark is the  most popular framework now a days for Big Data solutions, in this blog we will try to analyse different key factors that can be used to improve the performance of Spark applications in production.</p>
+          <p>Spark is the most popular platform for all the Bigdata needs now a days. As we see the trend that Spark is the defacto for Bigdata needs many people have it in production now its a common question for everyone to think of the surroudning things. What I really mean is, people are pretty comfortable with the development of Spark solutions as Spark exposes pretty simple and powerful API’s for the programmers to work with. But there are many more things in a Software process , like testing, code quality checks etc. But as a developers we need to show that how our code can be testing through some basic Unit tests. This blog tends to focus on Unit testing Spark.</p>
 
-<p>Below factors play vital role in improving performance of Spark applications.</p>
-
-<h3 id="quantity-of-the-data-shuffled">Quantity of the data shuffled</h3>
-
-<p>As we know, shuffle is the most costly operation in Spark which involves movement of the data in the cluster. You should always try to decrease size of data for shuffling to increase application performance. One common solution to achieve this is, always filter data before shuffle phase rather than after.</p>
-
-<h3 id="degree-of-parallelism">Degree of Parallelism</h3>
-
-<p>Always try to avoid the empty partitions. Generally if we have a filtering operation the result of the filtering operation reduces the size of data. If the filter operation is explicitly selective then there is always a chance that filtering operation ends up giving some of the partitions with very less data or sometimes no data. As soon as the size of data per partition decreases the situation arises where, time to launch the tasks for the empty partitions becomes overhead and reduces the performance significantly. Solution here is to use coalesce operation and reduce number of partitions after filtering.</p>
-
-<p>If your job is taking a long time and your cluster is not utilised completely, try to use <strong>repartition</strong> operation. Repartitioning allows you to increase/decrease the number of partitions of your job. In this case try to increase the number of partitions so that cluster is used efficiently. It might be expensive operation because when you call repartition some data is shuffled across the cluster. But if the operation you are doing is expensive and if you can use your empty cluster cores to parallelise the process, it can be beneficiary to call <strong>repartition</strong> on your data.</p>
-
-<h3 id="choice-of-serializer">Choice of serializer</h3>
-
-<p>In spark serialization happens whenever we perform <strong>*cache</strong> and <strong>shuffle</strong> operations. As I have already mentioned shuffle is the most costly operation in Spark. By default Spark uses java serialization which is very robust and has support for all types of data but it is very slow. Apart from this, spark has built in support for Kryo serialization. Kryo serialization is faster and has out of the box support inside Spark. To use it follow the below steps</p>
+<p>If we think of Unit testing we tend to follow the same ideas of JUnit to accomplish the task, but Spark is a pretty complex system its very hard for everone to get over with its unit testing easily. With Spark Streaming things become pretty complex. In any streaming applications we will be having two layers of abstraction</p>
 
 <ul>
-  <li>Change the spark configuration settings to use <strong>Kryo</strong> serializer.</li>
+  <li>Receiver - where we receive the data from sources like Kafka, File , Network etc</li>
+  <li>Processor - which actually process the data received from receivers.</li>
 </ul>
 
+<p>I feel unit testing the processer is pretty straight forward, so my focus in this blog will be on writing unit test for the Spark Streaming Receivers with Kafka being the source for streaming.</p>
+
+<p>Lets see what are the prerequisites we need for unittesting. Since we want to test spark streaming receiver which is fetching data from Kafka we need to have all the following components started to be able to test</p>
+
+<ul>
+  <li>SparkContext - Pre requisite for any Spark operation</li>
+  <li>SparkStreamingContext - Needed for streaming application</li>
+  <li>Zookeeper - Pre requisite for Kafka</li>
+  <li>Kafka - Needed because we want to fetch data from Kafka</li>
+</ul>
+
+<p>If we look at the above components we can start Spark and Spark Streaming context in setup method. To emulate the Kafka and Zookeeper for our test case we will use <a href="https://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/streaming/kafka/KafkaUtils.html">KafkaUtils</a>.</p>
+
+<p>For complete code check <a href="https://github.com/Shasidhar/spark_streaming_receiver_test">Spark Streaming Receiver Test</a></p>
+
+<p>Lets break the task into different steps,</p>
+
+<h4 id="make-test-setup">Make test setup</h4>
+
 <pre>
-<code data-trim="" class="scala">
- val conf = new SparkConf()
- conf.set("spark.serializer","org.apache.spark.serializer.KryoSerializer")
+<code data-trim="" class="java">
+    @Before
+    public void setUp() {
+        kafkaTestUtils = new KafkaTestUtils();
+        kafkaTestUtils.setup();
+        SparkConf sparkConf = new SparkConf()
+                        .setMaster("local[4]").setAppName(this.getClass().getSimpleName());
+        ssc = new JavaStreamingContext(sparkConf, new Duration(500));
+    }
 </code>
 </pre>
 
-<ul>
-  <li>Register all the classes which are serialized. Registration helps kryo to reduce the amount of metadata written as part of the serialization and decreases unwanted overhead. This adds up some of the boiler plate code inside your application.</li>
-</ul>
+<h4 id="make-kafka-ready">Make Kafka ready</h4>
+<p>We need to create a topic and pass some data into the topic. The data stored into Kafka will be used to match the received data from stream received from Kafka in the end. In this step we will create kafka topic and save data into the topic.</p>
 
 <pre>
-<code data-trim="" class="scala">
- conf.set("spark.kryo.registrattionRequired","true")
- conf.registerKryoClasses(Array(classOf[*yourClass*],classOf[*yourClass1*]))
+<code data-trim="" class="java">
+    String topic = "topic";
+    Map&lt;String, Integer&gt; topics = new HashMap&lt;String, Integer&gt;();
+    topics.put(topic, 1);
+    String[] sent = new String[3];
+    sent[0] = "first";
+    sent[1] = "second";
+    sent[2] = "third";
+    kafkaTestUtils.createTopic(topic);
+    kafkaTestUtils.sendMessages(topic, sent);
 </code>
 </pre>
 
-<h3 id="cache-format">Cache Format</h3>
+<h4 id="create-input-stream-and-compare-results-with-source">Create input stream and compare results with source</h4>
 
-<p>In Spark whenever we cache the data it is stored using <strong>MEMORY_ONLY</strong> level in the form of deserialized JVM objects. This is very fast in the performance perspective, because it can be retrieved directly without any cost. It has some side effects, one of them being increase in the GC pressure as there is lot of data sitting inside your cache.</p>
+<p>Now we have the data ready in Kafka we will create a DStream from the topic we created earlier using <a href="https://spark.apache.org/docs/latest/api/java/org/apache/spark/streaming/kafka/KafkaUtils.html">KafkaUtils</a></p>
 
-<p>To reduce the side effects of <em>cache</em> spark provides two more levels of caching.</p>
+<p>Now we will create kafka input stream and modify the final stream because we dont want to keep track of the Keys generated by kafka.</p>
 
-<ul>
-  <li>
-    <p>MEMORY_ONLY_SER - This mode decreases GC problems by saving all of the objects in serialized format as one object from the perspective of java memory management. The only trade off here is, since data is stored in serialized format spark does deserialization on the fly to access data. This can be quite time consuming than the other one.</p>
-  </li>
-  <li>
-    <p>MEMORY_AND_DISK - It avoids recomputation of the cached data whenever we access the data from disk. The only trade off here is , since we are hitting disk for the data it will be slow.</p>
-  </li>
-</ul>
-
-<h3 id="other-aspects">Other aspects</h3>
-
-<ul>
-  <li>
-    <p>Even though spark is a horizontally scalable engine, it is good to have more number of executors with optimal heap size rather than having executors with more memory. The optimum size of an executor is 64GB.</p>
-  </li>
-  <li>
-    <p>Use LZF compression to improve shuffle performace.</p>
-  </li>
-</ul>
+<p>Once we have the input stream we will extract data from the stream and compare with input data.</p>
 
 <pre>
-<code data-trim="" class="Scala">
- conf.set("spark.io.compression.codec","lzf")
-</code>
-</pre>
+<code data-trim="" class="Java">
+    JavaDStream<string> stream = KafkaUtils.createStream(ssc,
+    String.class,
+    String.class,
+    StringDecoder.class,
+    StringDecoder.class,
+    kafkaParams,
+    topics,
+    StorageLevel.MEMORY_ONLY_SER())
+    .map(new Function&lt;Tuple2&lt;String, String&gt;, String&gt;()
+    {
+    public String call(Tuple2&lt;String, String&gt; stringStringTuple2) throws Exception
+    	{
+        	return stringStringTuple2._2();
+        }
+    });
+    stream.foreachRDD(new Function&lt;JavaRDD<string>, Void&gt;()
+    {
+    public Void call(final JavaRDD<string> v1) throws Exception
+  	{
+  		received.addAll(v1.collect());
+  		return null;
+  		}
+  	});
+    Assert.assertEquals(sentList.size(), received.size());
 
-<ul>
-  <li>Turn on speculative execution to help prevent stragglers.</li>
-</ul>
 
-<pre>
-<code data-trim="" class="Scala">
- conf.set("spark.speculation","true")
-</code>
-</pre>
-
-<ul>
-  <li>Make sure spark has enough disks to store the shuffled data. Normally spark tries to move data across disks if memory runs out. It is set using following properties</li>
-</ul>
-
-<ol>
-  <li>
-    <p>In YARN mode, inherits YARN’s local directories</p>
-  </li>
-  <li>
-    <p>SPARK_LOCAL_DIRS in mesos/standalone mode</p>
-  </li>
-</ol>
-
-<p><strong>Note</strong> All the above mentioned tweaks may not yield performance improvement in every spark application. The main aim of this blog is to provide an overview of pinpoints where one can improve the performance of spark application.</p>
-
-<p>Hope you enjoyed reading this blog and it benefits you.</p>
+</string></string></string></code></pre>
 
 
 
@@ -413,7 +410,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Apache Spark Performance Tuning', 'https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html');
+    history.pushState({}, 'Unit testing Spark Streaming Receiver', 'https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html');
   }
 }
 </script>
@@ -430,14 +427,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2015/10/31/machine-learning-in-spark.html");
+        document.location.replace("/spark/2015/11/03/apache-spark-performance-tuning.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/01/20/unit-test-spark-streaming-receiver.html");
+        document.location.replace("");
       
     });
   </script>

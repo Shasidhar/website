@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Unit testing Spark Streaming Receiver</title>
+				
+				
+					<description>&lt;p&gt;Spark is the most popular platform for all the Bigdata needs now a days. As we see the trend that Spark is the defacto for Bigdata needs many people have it in production now its a common question for everyone to think of the surroudning things. What I really mean is, people are pretty comfortable with the development of Spark solutions as Spark exposes pretty simple and powerful API&amp;#8217;s for the programmers to work with. But there are many more things in a Software process , like testing, code quality checks etc. But as a developers we need to show that how our code can be testing through some basic Unit tests. This blog tends to focus on Unit testing Spark.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Wed, 20 Jan 2016 02:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html</guid>
+			</item>
+		
+			<item>
 				<title>Apache Spark Performance Tuning</title>
 				
 				
