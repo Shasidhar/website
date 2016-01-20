@@ -10,7 +10,7 @@
 				<title>Unit testing Spark Streaming Receiver</title>
 				
 				
-					<description>&lt;p&gt;Spark is the most popular platform for all the Bigdata needs now a days. As we see the trend that Spark is the defacto for Bigdata needs many people have it in production now its a common question for everyone to think of the surroudning things. What I really mean is, people are pretty comfortable with the development of Spark solutions as Spark exposes pretty simple and powerful API&amp;#8217;s for the programmers to work with. But there are many more things in a Software process , like testing, code quality checks etc. But as a developers we need to show that how our code can be testing through some basic Unit tests. This blog tends to focus on Unit testing Spark.&lt;/p&gt;
+					<description>&lt;p&gt;Spark is the most popular platform for all  Bigdata needs now a days. As per the recent trend, Spark is  defacto for Bigdata needs and quite popular in production as well. What I really mean is, people are pretty comfortable with the development of Spark solutions as Spark exposes pretty simple and powerful API&amp;#8217;s for the programmers to work with. But there are many more things in a Software process , like testing, code quality checks etc. But being developers we need to show how our code can be tested through some basic Unit tests. This blog tends to focus on Unit testing Spark.&lt;/p&gt;
 
 </description>
 				
