@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2016/01/20/unit-test-spark-streaming-receiver.html">
-  <title>Shashidhar  | Unit testing Spark Streaming Receiver</title>
+  <link rel="canonical" href="/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html">
+  <title>Shashidhar  | Zookeeper Offset Management In Kafka Direct Stream</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,110 +170,115 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Unit testing Spark Streaming Receiver</strong></h1>
-          <h4><strong>20 Jan 2016</strong>
-            <!-- <small> .  . <a href="/spark/2016/01/20/unit-test-spark-streaming-receiver.html#disqus_thread">Comments</a>
+          <h1><strong>Zookeeper Offset Management In Kafka Direct Stream</strong></h1>
+          <h4><strong>05 Mar 2016</strong>
+            <!-- <small> .  . <a href="/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>Spark is the most popular platform for all  Bigdata needs now a days. As per the recent trend, Spark is  defacto for Bigdata needs and quite popular in production as well. What I really mean is, people are pretty comfortable with the development of Spark solutions as Spark exposes pretty simple and powerful API’s for the programmers to work with. But there are many more things in a Software process , like testing, code quality checks etc. But being developers we need to show how our code can be tested through some basic Unit tests. This blog tends to focus on Unit testing Spark.</p>
+          <p>Kafka is the most popular source for Spark streaming application because of various benefits we get from Kafka. As you know Spark streaming has the concept of <strong>Receivers</strong> which is responsible to receive data from the input sources of any streaming application and store it in memory for processing. But there is a special approach supported by Spark Streaming engine for Kafka input source which is called as <strong>Direct Approach (No Receivers)</strong></p>
 
-<p>If we think of Unit testing we tend to follow the same ideas of JUnit to accomplish the task, but Spark is a pretty complex system and its very hard for everyone to get over with its unit testing easily. With Spark Streaming things become pretty complex.</p>
+<p>To give a brief introduction about this <strong>Direct Approach</strong>, in this approach spark streaming engine directly queries the data from Kafka without receivers periodically and also defines the offset ranges to process for each batch. Here Spark uses Kafka low level consumer API instead of the high level API used in the receiver based kafka input sources. Also Spark Streaming engine follows the Kafka partitioning scheme in this approach.</p>
 
-<p>In any streaming applications we will be having two layers of abstraction</p>
+<p>Now its clear that offset ranges are managed by Spark automatically, we will not see the offset ranges getting updated in the Zookeeper as it happens in receiver based approach. So there is some work here which needs to be done by the programmers to track the kafka offset ranges for each batch on our own.</p>
 
-<ul>
-  <li>Receiver - where we receive the data from sources like Kafka, File , Network etc</li>
-  <li>Processor - which actually process the data received from receivers.</li>
-</ul>
+<p><strong><em>Why we want to store these kafka offset ranges?</em></strong></p>
 
-<p>I feel unit testing the processer is pretty straight forward, so my focus in this blog will be on writing unit test for the Spark Streaming Receivers with Kafka being the source for streaming.</p>
+<p>If we dont save them , we cannot do the following</p>
 
-<p>Lets see what are the prerequisites we need for unit testing. Since we want to test spark streaming receiver which is fetching data from Kafka we need to have all the following components started to be able to test.</p>
+<ol>
+  <li>
+    <p>Zookeeper based Kafka monitoring tools will not work. Because these tools expect consumer offsets being updated in the Zookeeper so that the monitoring UI will show the real time status of the data being processed.</p>
+  </li>
+  <li>
+    <p>If checkpointing is not enabled in Spark streaming, we cannot resume the jobs from where it is left in case of failures.</p>
+  </li>
+</ol>
 
-<ul>
-  <li>SparkContext - Pre requisite for any Spark operation</li>
-  <li>SparkStreamingContext - Needed for streaming application</li>
-  <li>Zookeeper - Pre requisite for Kafka</li>
-  <li>Kafka - Needed because we want to fetch data from Kafka</li>
-</ul>
+<p>In this blog, we will see how we can get the Offset’s of the kafka topics consumed from Spark DStreams and how to store them in Zookeeper so that the monitoring tools will show the job progress.</p>
 
-<p>If we look at the above components we can start Spark and Spark Streaming context in setup method. To emulate the Kafka and Zookeeper for our test case we will use <a href="https://spark.apache.org/docs/latest/api/java/index.html?org/apache/spark/streaming/kafka/KafkaUtils.html">KafkaUtils</a>.</p>
-
-<p>For complete code check <a href="https://github.com/Shasidhar/spark_streaming_receiver_test">Spark Streaming Receiver Test</a></p>
-
-<p>Lets break the task into different steps,</p>
-
-<h4 id="make-test-setup">Make test setup</h4>
-
-<pre>
-<code data-trim="" class="java">
-    @Before
-    public void setUp() {
-        kafkaTestUtils = new KafkaTestUtils();
-        kafkaTestUtils.setup();
-        SparkConf sparkConf = new SparkConf()
-                        .setMaster("local[4]").setAppName(this.getClass().getSimpleName());
-        ssc = new JavaStreamingContext(sparkConf, new Duration(500));
-    }
-</code>
-</pre>
-
-<h4 id="make-kafka-ready">Make Kafka ready</h4>
-<p>We need to create a topic and pass some data into the topic. The data stored into Kafka will be used to match the received data from stream received from Kafka in the end. In this step we will create kafka topic and save data into the topic.</p>
-
-<pre>
-<code data-trim="" class="java">
-    String topic = "topic";
-    Map&lt;String, Integer&gt; topics = new HashMap&lt;String, Integer&gt;();
-    topics.put(topic, 1);
-    String[] sent = new String[3];
-    sent[0] = "first";
-    sent[1] = "second";
-    sent[2] = "third";
-    kafkaTestUtils.createTopic(topic);
-    kafkaTestUtils.sendMessages(topic, sent);
-</code>
-</pre>
-
-<h4 id="create-input-stream-and-compare-results-with-source">Create input stream and compare results with source</h4>
-
-<p>Now we have the data ready in Kafka we will create a DStream from the topic we created earlier using <a href="https://spark.apache.org/docs/latest/api/java/org/apache/spark/streaming/kafka/KafkaUtils.html">KafkaUtils</a></p>
-
-<p>Now we will create kafka input stream and modify the final stream because we don’t want to keep track of the Keys generated by kafka.</p>
-
-<p>Once we have the input stream we will extract data from the stream and compare with input data.</p>
+<h4 id="extract-offset-ranges-from-dstream">Extract Offset ranges from DStream</h4>
 
 <pre>
 <code data-trim="" class="Java">
-    JavaDStream<string> stream = KafkaUtils.createStream(ssc,
-    String.class,
-    String.class,
-    StringDecoder.class,
-    StringDecoder.class,
-    kafkaParams,
-    topics,
-    StorageLevel.MEMORY_ONLY_SER())
-    .map(new Function&lt;Tuple2&lt;String, String&gt;, String&gt;()
-    {
-    public String call(Tuple2&lt;String, String&gt; stringStringTuple2) throws Exception
-        {
-            return stringStringTuple2._2();
+    final AtomicReference&lt;OffsetRange[]&gt; offsetRanges = new AtomicReference&lt;&gt;();
+    
+    directKafkaStream.transformToPair(
+        new Function&lt;JavaPairRDD&lt;String, String&gt;, JavaPairRDD&lt;String, String&gt;&gt;() {
+        @Override
+        public JavaPairRDD&lt;String, String&gt; call(JavaPairRDD&lt;String, String&gt; rdd) throws Exception {
+        OffsetRange[] offsets = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
+        offsetRanges.set(offsets);
+        return rdd;
+            }
         }
-    });
-    stream.foreachRDD(new Function&lt;JavaRDD<string>, Void&gt;()
-    {
-    public Void call(final JavaRDD<string> v1) throws Exception
-      {
-          received.addAll(v1.collect());
-          return null;
-          }
-      });
-    Assert.assertEquals(sentList.size(), received.size());
+    ).foreachRDD(
+        new Function&lt;JavaPairRDD&lt;String, String&gt;, Void&gt;() {
+        @Override
+        public Void call(JavaPairRDD&lt;String, String&gt; rdd) throws IOException {
+        for (OffsetRange o : offsetRanges.get()) {
+             System.out.println(
+            o.topic() + " " + o.partition() + " " + o.fromOffset() + " " + o.untilOffset()
+            );
+        }
+        return null;
+            }
+        }
+    );
+</code>
+</pre>
+
+<p>In the above code we are extracting the Offsets from the DStream and printing into console.</p>
+
+<p><strong>NOTE:</strong> you can typecast the rdd into HasOffsetRanges only in the first method after you create direct stream from Kafka not in the subsequent calls. Also the partitioning of the rdd’s change if you perform any operations that includes shuffle.</p>
+
+<p>So, its better to call transform and process the offsets just after the direct stream. Later any normal DStream operations can be performed according to the application needs.</p>
+
+<h4 id="save-the-offsets-into-zookeeper">Save the Offsets into Zookeeper</h4>
+
+<p>Now we see how the offsets should be stored inside Zookeeper. Normally Kafka consumer offsets are stored in Zookeeper in the <strong><em>consumers/[groupId]/offsets/[topic]/[partitionId] -&gt; long (offset)</em></strong> path.</p>
+
+<p>In below code i’m extracting the offsets and storing into the corresponding node in Zookeeper with Curator clients.</p>
+
+<pre>
+<code data-trim="" class="Java">
+    final AtomicReference&lt;OffsetRange[]&gt; offsetRanges = new AtomicReference&lt;&gt;();
+    final CuratorFramework  curatorFramework = CuratorFrameworkFactory..namespace("testgroup").builder().connectString("<zookeeperhost>:<port>").connectionTimeoutMs(1000).sessionTimeoutMs(10000).retryPolicy(new RetryUntilElapsed(1000, 1000)).build();
+
+    curatorFramework.start();
+    final ObjectMapper objectMapper = new ObjectMapper();
+
+    directKafkaStream.transformToPair(
+        new Function&lt;JavaPairRDD&lt;String, String&gt;, JavaPairRDD&lt;String, String&gt;&gt;() {
+        @Override
+        public JavaPairRDD&lt;String, String&gt; call(JavaPairRDD&lt;String, String&gt; rdd) throws Exception {
+        OffsetRange[] offsets = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
+        offsetRanges.set(offsets);
+        return rdd;
+            }
+        }
+    ).foreachRDD(
+        new Function&lt;JavaPairRDD&lt;String, String&gt;, Void&gt;() {
+        @Override
+        public Void call(JavaPairRDD&lt;String, String&gt; rdd) throws IOException {
+        for (OffsetRange o : offsetRanges.get()) {
+            final byte[] offsetBytes = objectMapper.writeValueAsBytes(outputObj.getEndOffset());
+            String nodePath = "/testgroup/offsets/" + o.topic()+ "/" + o.partition();
+
+            if(curatorFramework.checkExists().forPath(nodePath)!=null){
+                    curatorFramework.setData().forPath(nodePath,offsetBytes);
+                }else{
+                    curatorFramework.create().creatingParentsIfNeeded().forPath(nodePath, offsetBytes);
+                }
+        }
+        return null;
+            }
+        }
+    );
 
 
-</string></string></string></code></pre>
+</port></zookeeperhost></code></pre>
 
 
 
@@ -412,7 +417,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Unit testing Spark Streaming Receiver', 'https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html');
+    history.pushState({}, 'Zookeeper Offset Management In Kafka Direct Stream', 'https://shasidhare.com/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html');
   }
 }
 </script>
@@ -429,14 +434,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2015/11/03/apache-spark-performance-tuning.html");
+        document.location.replace("/spark/2016/01/20/unit-test-spark-streaming-receiver.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html");
+        document.location.replace("");
       
     });
   </script>

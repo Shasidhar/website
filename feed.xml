@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Zookeeper Offset Management In Kafka Direct Stream</title>
+				
+				
+					<description>&lt;p&gt;Kafka is the most popular source for Spark streaming application because of various benefits we get from Kafka. As you know Spark streaming has the concept of &lt;strong&gt;Receivers&lt;/strong&gt; which is responsible to receive data from the input sources of any streaming application and store it in memory for processing. But there is a special approach supported by Spark Streaming engine for Kafka input source which is called as &lt;strong&gt;Direct Approach (No Receivers)&lt;/strong&gt;&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Sat, 05 Mar 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html</guid>
+			</item>
+		
+			<item>
 				<title>Unit testing Spark Streaming Receiver</title>
 				
 				
