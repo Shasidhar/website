@@ -183,9 +183,7 @@
 
 <p>Now its clear that offset ranges are managed by Spark automatically, we will not see the offset ranges getting updated in the Zookeeper as it happens in receiver based approach. So there is some work here which needs to be done by the programmers to track the kafka offset ranges for each batch on our own.</p>
 
-<p><strong><em>Why we want to store these kafka offset ranges?</em></strong></p>
-
-<p>If we dont save them , we cannot do the following</p>
+<p><strong><em>Why we want to store kafka consumer offset ranges?</em></strong></p>
 
 <ol>
   <li>
