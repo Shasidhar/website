@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building End to End Spark Streaming Application</title>
+				
+				
+					<description>&lt;p&gt;The below video is a recording of my talk on &lt;em&gt;Building End to End Spark Streaming Application&lt;/em&gt; in recent spark meet up. This talk is focused upon Streaming application development in Spark Streaming. Also you can see how application is evolved over a period of time along with integrations of different components with Spark Streaming. There is a special section where you can also see unit testing of Spark Streaming application.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Mon, 28 Mar 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/03/28/building-end-to-end-spark-streaming-application.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/03/28/building-end-to-end-spark-streaming-application.html</guid>
+			</item>
+		
+			<item>
 				<title>Zookeeper Offset Management In Kafka Direct Stream</title>
 				
 				

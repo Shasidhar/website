@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html">
-  <title>Shashidhar  | Zookeeper Offset Management In Kafka Direct Stream</title>
+  <link rel="canonical" href="/spark/2016/03/28/building-end-to-end-spark-streaming-application.html">
+  <title>Shashidhar  | Building End to End Spark Streaming Application</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,113 +170,21 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Zookeeper Offset Management In Kafka Direct Stream</strong></h1>
-          <h4><strong>05 Mar 2016</strong>
-            <!-- <small> .  . <a href="/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html#disqus_thread">Comments</a>
+          <h1><strong>Building End to End Spark Streaming Application</strong></h1>
+          <h4><strong>28 Mar 2016</strong>
+            <!-- <small> .  . <a href="/spark/2016/03/28/building-end-to-end-spark-streaming-application.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>Kafka is the most popular source for Spark streaming application because of various benefits we get from Kafka. As you know Spark streaming has the concept of <strong>Receivers</strong> which is responsible to receive data from the input sources of any streaming application and store it in memory for processing. But there is a special approach supported by Spark Streaming engine for Kafka input source which is called as <strong>Direct Approach (No Receivers)</strong></p>
+          <p>The below video is a recording of my talk on <em>Building End to End Spark Streaming Application</em> in recent spark meet up. This talk is focused upon Streaming application development in Spark Streaming. Also you can see how application is evolved over a period of time along with integrations of different components with Spark Streaming. There is a special section where you can also see unit testing of Spark Streaming application.</p>
 
-<p>To give a brief introduction about this <strong>Direct Approach</strong>, in this approach spark streaming engine directly queries the data from Kafka without receivers periodically and also defines the offset ranges to process for each batch. Here Spark uses Kafka low level consumer API instead of the high level API used in the receiver based kafka input sources. Also Spark Streaming engine follows the Kafka partitioning scheme in this approach.</p>
+<p>I hope this talk will give overall idea of the streaming applications along with the overview of different components involved.</p>
 
-<p>Now its clear that offset ranges are managed by Spark automatically, we will not see the offset ranges getting updated in the Zookeeper as it happens in receiver based approach. So there is some work here which needs to be done by the programmers to track the kafka offset ranges for each batch on our own.</p>
+<p>Find the slides on <a href="http://www.slideshare.net/datamantra/building-distributed-processing-system-from-scratch-part-2">slideshare</a> and code on <a href="github.com/Shasidhar/sensoranalytics">github</a>.</p>
 
-<p><strong><em>Why we want to store kafka consumer offset ranges?</em></strong></p>
-
-<ol>
-  <li>
-    <p>Zookeeper based Kafka monitoring tools will not work. Because these tools expect consumer offsets being updated in the Zookeeper so that the monitoring UI will show the real time status of the data being processed.</p>
-  </li>
-  <li>
-    <p>If checkpointing is not enabled in Spark streaming, we cannot resume the jobs from where it is left in case of failures.</p>
-  </li>
-</ol>
-
-<p>In this blog, we will see how we can get the Offset’s of the kafka topics consumed from Spark DStreams and how to store them in Zookeeper so that the monitoring tools will show the job progress.</p>
-
-<h4 id="extract-offset-ranges-from-dstream">Extract Offset ranges from DStream</h4>
-
-<pre>
-<code data-trim="" class="Java">
-    final AtomicReference&lt;OffsetRange[]&gt; offsetRanges = new AtomicReference&lt;&gt;();
-    
-    directKafkaStream.transformToPair(
-        new Function&lt;JavaPairRDD&lt;String, String&gt;, JavaPairRDD&lt;String, String&gt;&gt;() {
-        @Override
-        public JavaPairRDD&lt;String, String&gt; call(JavaPairRDD&lt;String, String&gt; rdd) throws Exception {
-        OffsetRange[] offsets = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
-        offsetRanges.set(offsets);
-        return rdd;
-            }
-        }
-    ).foreachRDD(
-        new Function&lt;JavaPairRDD&lt;String, String&gt;, Void&gt;() {
-        @Override
-        public Void call(JavaPairRDD&lt;String, String&gt; rdd) throws IOException {
-        for (OffsetRange o : offsetRanges.get()) {
-             System.out.println(
-            o.topic() + " " + o.partition() + " " + o.fromOffset() + " " + o.untilOffset()
-            );
-        }
-        return null;
-            }
-        }
-    );
-</code>
-</pre>
-
-<p>In the above code we are extracting the Offsets from the DStream and printing into console.</p>
-
-<p><strong>NOTE:</strong> you can typecast the rdd into HasOffsetRanges only in the first method after you create direct stream from Kafka not in the subsequent calls. Also the partitioning of the rdd’s change if you perform any operations that includes shuffle.</p>
-
-<p>So, its better to call transform and process the offsets just after the direct stream. Later any normal DStream operations can be performed according to the application needs.</p>
-
-<h4 id="save-the-offsets-into-zookeeper">Save the Offsets into Zookeeper</h4>
-
-<p>Now we see how the offsets should be stored inside Zookeeper. Normally Kafka consumer offsets are stored in Zookeeper in the <strong><em>consumers/[groupId]/offsets/[topic]/[partitionId] -&gt; long (offset)</em></strong> path.</p>
-
-<p>In below code i’m extracting the offsets and storing into the corresponding node in Zookeeper with Curator clients.</p>
-
-<pre>
-<code data-trim="" class="Java">
-    final AtomicReference&lt;OffsetRange[]&gt; offsetRanges = new AtomicReference&lt;&gt;();
-    final CuratorFramework  curatorFramework = CuratorFrameworkFactory..namespace("testgroup").builder().connectString("<zookeeperhost>:<port>").connectionTimeoutMs(1000).sessionTimeoutMs(10000).retryPolicy(new RetryUntilElapsed(1000, 1000)).build();
-
-    curatorFramework.start();
-    final ObjectMapper objectMapper = new ObjectMapper();
-
-    directKafkaStream.transformToPair(
-        new Function&lt;JavaPairRDD&lt;String, String&gt;, JavaPairRDD&lt;String, String&gt;&gt;() {
-        @Override
-        public JavaPairRDD&lt;String, String&gt; call(JavaPairRDD&lt;String, String&gt; rdd) throws Exception {
-        OffsetRange[] offsets = ((HasOffsetRanges) rdd.rdd()).offsetRanges();
-        offsetRanges.set(offsets);
-        return rdd;
-            }
-        }
-    ).foreachRDD(
-        new Function&lt;JavaPairRDD&lt;String, String&gt;, Void&gt;() {
-        @Override
-        public Void call(JavaPairRDD&lt;String, String&gt; rdd) throws IOException {
-        for (OffsetRange o : offsetRanges.get()) {
-            final byte[] offsetBytes = objectMapper.writeValueAsBytes(outputObj.getEndOffset());
-            String nodePath = "/testgroup/offsets/" + o.topic()+ "/" + o.partition();
-
-            if(curatorFramework.checkExists().forPath(nodePath)!=null){
-                    curatorFramework.setData().forPath(nodePath,offsetBytes);
-                }else{
-                    curatorFramework.create().creatingParentsIfNeeded().forPath(nodePath, offsetBytes);
-                }
-        }
-        return null;
-            }
-        }
-    );
-
-
-</port></zookeeperhost></code></pre>
+<div class="video-container"> <iframe width="854" height="480" src="https://www.youtube.com/embed/_30m5FHBw7c" frameborder="0" allowfullscreen=""></iframe> <!--  <iframe src="https://www.youtube.com/embed/Oj8IO8OICAc" frameborder="0" align="middle" width="900" height="500"></iframe> </div> -->
+</div>
 
 
 
@@ -415,7 +323,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Zookeeper Offset Management In Kafka Direct Stream', 'https://shasidhare.com/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html');
+    history.pushState({}, 'Building End to End Spark Streaming Application', 'https://shasidhare.com/spark/2016/03/28/building-end-to-end-spark-streaming-application.html');
   }
 }
 </script>
@@ -432,14 +340,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/01/20/unit-test-spark-streaming-receiver.html");
+        document.location.replace("/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/03/28/building-end-to-end-spark-streaming-application.html");
+        document.location.replace("");
       
     });
   </script>
