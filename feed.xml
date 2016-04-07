@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building Spark Streaming App - Part 1 (Introduction to Business Case)</title>
+				
+				
+					<description>&lt;p&gt;&lt;a href=&quot;http://spark.apache.org/streaming/&quot;&gt;Spark Streaming&lt;/a&gt; is the most widely used framework to develop near real time applications in present times. It comes with lot of advantages compared to its competeting streaming frameworks available in open source world.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Fri, 08 Apr 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html</guid>
+			</item>
+		
+			<item>
 				<title>Building End to End Spark Streaming Application</title>
 				
 				
@@ -121,19 +134,6 @@
 				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html</guid>
-			</item>
-		
-			<item>
-				<title>Hadoop history</title>
-				
-				
-					<description>&lt;p&gt;Apache Hadoop is an open source software project that enables distributed processing of large data sets across clusters of commodity servers. It is designed to scale up from a single server to thousands of machines, with a very high degree of fault tolerance.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/30/hadoop-history.html</guid>
 			</item>
 		
 	</channel>

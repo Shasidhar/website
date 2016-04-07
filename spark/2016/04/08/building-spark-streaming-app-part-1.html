@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2016/03/28/building-end-to-end-spark-streaming-application.html">
-  <title>Shashidhar  | Building End to End Spark Streaming Application</title>
+  <link rel="canonical" href="/spark/2016/04/08/building-spark-streaming-app-part-1.html">
+  <title>Shashidhar  | Building Spark Streaming App - Part 1 (Introduction to Business Case)</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,21 +170,52 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Building End to End Spark Streaming Application</strong></h1>
-          <h4><strong>28 Mar 2016</strong>
-            <!-- <small> .  . <a href="/spark/2016/03/28/building-end-to-end-spark-streaming-application.html#disqus_thread">Comments</a>
+          <h1><strong>Building Spark Streaming App - Part 1 (Introduction to Business Case)</strong></h1>
+          <h4><strong>08 Apr 2016</strong>
+            <!-- <small> .  . <a href="/spark/2016/04/08/building-spark-streaming-app-part-1.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>The below video is a recording of my talk on <em>Building End to End Spark Streaming Application</em> in recent spark meet up. This talk is focused upon Streaming application development in Spark Streaming. Also you can see how application is evolved over a period of time along with integrations of different components with Spark Streaming. There is a special section where you can also see unit testing of Spark Streaming application.</p>
+          <p><a href="http://spark.apache.org/streaming/">Spark Streaming</a> is the most widely used framework to develop near real time applications in present times. It comes with lot of advantages compared to its competeting streaming frameworks available in open source world.</p>
 
-<p>I hope this talk will give overall idea of the streaming applications along with the overview of different components involved.</p>
+<p>I am starting a new blog series in which I will be discussing about development of realtime application in Spark Streaming. In this series I will be discussing about various aspects of Streaming application, starting from high level Business use case of client to in-depth coding samples.</p>
 
-<p>Find the slides on <a href="http://www.slideshare.net/datamantra/building-distributed-processing-system-from-scratch-part-2">slideshare</a> and code on <a href="github.com/Shasidhar/sensoranalytics">github</a>.</p>
+<p>When ever we think of any software applicaion it is obvious that we cannot achieve every requirement with one single software tool. In the similar grounds, for our streaming application we will not only look into the spark streaming framework , we will also sneak peak into other frameworks like <a href="http://kafka.apache.org/">Apache Kafka</a> , <a href="http://cassandra.apache.org/">Apache Cassandra</a> and <a href="https://zeppelin.incubator.apache.org/">Apache Zeppelin</a>.</p>
 
-<div class="video-container"> <iframe width="854" height="480" src="https://www.youtube.com/embed/_30m5FHBw7c" frameborder="0" allowfullscreen=""></iframe> <!--  <iframe src="https://www.youtube.com/embed/Oj8IO8OICAc" frameborder="0" align="middle" width="900" height="500"></iframe> </div> -->
-</div>
+<p>Before starting of the series, I would like to mention about audience type. Since this is a real application development it is good if you have prior knowledge about basics of Spark Streaming. A basic idea about streaming applications also would be helpful to get better understanding.</p>
+
+<p>In this first blog I will be discussing about what is the real use case we are dealing in this series. The problem we are trying to solve can be called as <strong>Real Time log analysis</strong>.</p>
+
+<p><strong><em>Existing Business</em></strong></p>
+
+<p>Our client is a large Wi-Fi hotspot provider and installer in pulbic spaces accross US. Since it is a consumer oriented business they need to have a good application which can give valuable insights about users of their hotspot devices. Intially it was started a batch system where data is collected for one full day and analysis is run overnight to get insights on next day.</p>
+
+<p><strong><em>Problems in Existing System</em></strong></p>
+
+<ol>
+  <li>Batch system results was not much helpful to make decisions for the business</li>
+  <li>As more and more hot spots are getting installed and company started to expand the existing analytical system was not able to handle the large data loads</li>
+  <li>Number of users using the hotspot for internet connectivity started to decrease over a period of time, and lot of users failed to login to the Wi-Fi network.</li>
+</ol>
+
+<p><strong><em>New system needs</em></strong></p>
+
+<p>Now its obvious that there is a need for real time analytical engine which can give better idea of the system rather than having a batch system which provides analytics in a delay of one day. For this kind of real-time/streaming systems Spark Streaming is the best choice to accomplish the requirements.</p>
+
+<p>Along with the ability to get the insights of the system in real time there is a big need of reporting system which can show the results to client in real time. To accomplish the reporting part of the requirement we will be using Zeppelin.</p>
+
+<p><strong><em>Why Spark Streaming ??</em></strong></p>
+
+<p>There are many streaming frameworks available to perform real time analytics. But why we have to go with spark streaming.</p>
+
+<ol>
+  <li>Using spark streaming it is very easy to port a batch system into streaming system.</li>
+  <li>Since spark streaming is an extension of Spark batch API, we can always provide historical data analytics in future if needed.</li>
+  <li>Spark has excellent community and support in integrations for both input data sources and output reporting engines.</li>
+</ol>
+
+<p>Now you have the idea of what is the type of requirements we are dealing here, in the coming series of blogs I will be answering different questions like what is the type of data , how to collect the data , how to process the data, how to store the results, how to show the results and lot more</p>
 
 
 
@@ -323,7 +354,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Building End to End Spark Streaming Application', 'https://shasidhare.com/spark/2016/03/28/building-end-to-end-spark-streaming-application.html');
+    history.pushState({}, 'Building Spark Streaming App - Part 1 (Introduction to Business Case)', 'https://shasidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html');
   }
 }
 </script>
@@ -340,14 +371,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html");
+        document.location.replace("/spark/2016/03/28/building-end-to-end-spark-streaming-application.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/04/08/building-spark-streaming-app-part-1.html");
+        document.location.replace("");
       
     });
   </script>
