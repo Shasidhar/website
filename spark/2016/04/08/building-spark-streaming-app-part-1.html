@@ -179,17 +179,17 @@
 
           <p><a href="http://spark.apache.org/streaming/">Spark Streaming</a> is the most widely used framework to develop near real time applications in present times. It comes with lot of advantages compared to its competeting streaming frameworks available in open source world.</p>
 
-<p>I am starting a new blog series in which I will be discussing about development of realtime application in Spark Streaming. In this series I will be discussing about various aspects of Streaming application, starting from high level Business use case of client to in-depth coding samples.</p>
+<p>I am starting a new blog series in which I will be discussing about development of real-time application in Spark Streaming and  various aspects of Streaming application, starting from high level Business use case of client to in-depth coding samples.</p>
 
-<p>When ever we think of any software applicaion it is obvious that we cannot achieve every requirement with one single software tool. In the similar grounds, for our streaming application we will not only look into the spark streaming framework , we will also sneak peak into other frameworks like <a href="http://kafka.apache.org/">Apache Kafka</a> , <a href="http://cassandra.apache.org/">Apache Cassandra</a> and <a href="https://zeppelin.incubator.apache.org/">Apache Zeppelin</a>.</p>
+<p>Whenever we think of any software application it is obvious that we cannot achieve every requirement with one single software tool. In the similar grounds, for our streaming application we will not only look into the spark streaming framework, we will also sneak a peek into other frameworks like <a href="http://kafka.apache.org/">Apache Kafka</a>,<a href="http://cassandra.apache.org/">Apache Cassandra</a> and <a href="https://zeppelin.incubator.apache.org/">Apache Zeppelin</a>.</p>
 
-<p>Before starting of the series, I would like to mention about audience type. Since this is a real application development it is good if you have prior knowledge about basics of Spark Streaming. A basic idea about streaming applications also would be helpful to get better understanding.</p>
+<p>Before starting of the series, I would like to mention about audience . Since this is a real application development it is good if you have prior knowledge about basics of Spark Streaming. A basic idea about streaming applications also would be helpful to get better understanding.</p>
 
 <p>In this first blog I will be discussing about what is the real use case we are dealing in this series. The problem we are trying to solve can be called as <strong>Real Time log analysis</strong>.</p>
 
 <p><strong><em>Existing Business</em></strong></p>
 
-<p>Our client is a large Wi-Fi hotspot provider and installer in pulbic spaces accross US. Since it is a consumer oriented business they need to have a good application which can give valuable insights about users of their hotspot devices. Intially it was started a batch system where data is collected for one full day and analysis is run overnight to get insights on next day.</p>
+<p>Our client is a large Wi-Fi hotspot provider and installer in public spaces across US. Since it is a consumer oriented business they need to have a good application which can give valuable insights about users of their hotspot devices. Initially it was started as a batch system where data is collected for one full day and analysis is run overnight to get insights on next day.</p>
 
 <p><strong><em>Problems in Existing System</em></strong></p>
 
@@ -201,7 +201,7 @@
 
 <p><strong><em>New system needs</em></strong></p>
 
-<p>Now its obvious that there is a need for real time analytical engine which can give better idea of the system rather than having a batch system which provides analytics in a delay of one day. For this kind of real-time/streaming systems Spark Streaming is the best choice to accomplish the requirements.</p>
+<p>Now it’s obvious that there is a need for real time analytical engine which can give better idea of the system rather than having a batch system which provides analytics in a delay of one day. For this kind of real-time/streaming systems Spark Streaming is the best choice to accomplish the requirements.</p>
 
 <p>Along with the ability to get the insights of the system in real time there is a big need of reporting system which can show the results to client in real time. To accomplish the reporting part of the requirement we will be using Zeppelin.</p>
 
@@ -215,7 +215,7 @@
   <li>Spark has excellent community and support in integrations for both input data sources and output reporting engines.</li>
 </ol>
 
-<p>Now you have the idea of what is the type of requirements we are dealing here, in the coming series of blogs I will be answering different questions like what is the type of data , how to collect the data , how to process the data, how to store the results, how to show the results and lot more</p>
+<p>Now you have the idea of what is the type of requirements we are dealing here, in my upcoming  blogs I will be addressing different cases like what is the type of data , how to collect the data , how to process the data, how to store the results, how to show the results and lot more.</p>
 
 
 
