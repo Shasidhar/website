@@ -79,6 +79,15 @@
   
   
     <url>
+      <loc>https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-%202.html</loc>
+      
+        <lastmod>2016-05-08T03:02:27+05:30</lastmod>
+      
+      <changefreq>weekly</changefreq>
+      <priority>1.0</priority>
+    </url>
+  
+    <url>
       <loc>https://shasidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html</loc>
       
         <lastmod>2016-04-08T03:02:27+05:30</lastmod>

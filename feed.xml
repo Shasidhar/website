@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building Spark Streaming App - Part 2 (Data Format,Types of Aggregations)</title>
+				
+				
+					<description>&lt;p&gt;In the previous &lt;a href=&quot;http://shashidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html&quot;&gt;blog&lt;/a&gt; we have discussed about what is the application about, a brief overview of the business problem and high level requirements. In this blog we will focus on specifics like what is the data format? What are the types of aggregations we are interested in?&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Sun, 08 May 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-%202.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-%202.html</guid>
+			</item>
+		
+			<item>
 				<title>Building Spark Streaming App - Part 1 (Introduction to Business Case)</title>
 				
 				
@@ -121,19 +134,6 @@
 				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/hadoop/2015/01/31/map%20reduce-history.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/31/map%20reduce-history.html</guid>
-			</item>
-		
-			<item>
-				<title>Secondary Sorting in Hadoop</title>
-				
-				
-					<description>&lt;p&gt;I have read many blog’s about secondary sorting when I was learning hadoop. Most of these blogs tries to explain it conceptually which is not sufficient as it is kind of hack in hadoop. In this blog let’s see how that can be understood in a better way .We see how data changes internally in each step of secondary sort.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Fri, 30 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/30/secondary-sorting--in-hadoop.html</guid>
 			</item>
 		
 	</channel>
