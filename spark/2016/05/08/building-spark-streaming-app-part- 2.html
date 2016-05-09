@@ -177,26 +177,26 @@
             </small> -->
           </h4>
 
-          <p>In the previous <a href="http://shashidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html">blog</a> we have discussed about what is the application about, a brief overview of the business problem and high level requirements. In this blog we will focus on specifics like what is the data format? What are the types of aggregations we are interested in?</p>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html">blog</a> we have discussed  about application, a brief overview of the business problem and high level requirements. In this blog we will focus on specifics like what is the required data format? What are the types of aggregations we are interested in?</p>
 
 <p><strong>Data Fromat</strong></p>
 
-<p>The input data we were receiving from the Wi-Fi hotspot devices use to capture lot of information. But in this use case we will use dummy data. 
-Everyrecord in the input data has five columns and represents single user session within the system for a given time.</p>
+<p>The actual input data we were receiving from the Wi-Fi hotspot devices used to capture lot of information. But in this use case we will use dummy data. 
+Every record in the input data has five columns and represents single user session within the system for a given time.</p>
 
 <ol>
   <li>Timestamp - Denotes the time when a record in captured.</li>
   <li>Country - Defines country</li>
   <li>State - Defines State</li>
-  <li>City - Defnes city</li>
-  <li>SensorStatus - Defines whether user logged in or not. (True/False)</li>
+  <li>City - Defines city</li>
+  <li>Sensor Status - Defines whether user logged in or not. (True/False)</li>
 </ol>
 
-<p>As you observe its a pretty simple data to understand and most of the fields are selfe explainatory. Even with this small data format we will see how much variety of insights we can achieve.</p>
+<p>As you observe it’s a pretty simple data to understand and most of the fields are self explanatory. Even with this small data format we will see how much variety of insights we can achieve.</p>
 
 <p><strong><em>Types of Aggregations</em></strong></p>
 
-<p>Now we know the data we are dealing with, lets see what are the insights we want to derive from the data. From high level we can divide aggregations into three categories.</p>
+<p>Now we know the type of data we are dealing with, let’s see what are the insights we want to derive from the data. From high level we can divide aggregations into three categories.</p>
 
 <ol>
   <li>Country wise statistics - We need to get number of users using the Wi-Fi hotspots in a given country</li>
@@ -204,19 +204,19 @@ Everyrecord in the input data has five columns and represents single user sessio
   <li>City wise statistics - We need to get number of users using the Wi-Fi in a given City. Also we need to determine how many users logged in to the system and how many have not.</li>
 </ol>
 
-<p>Apart from the above mentioned aggregattions we also want to have hourly, weekly and monthly view of every aggregate.</p>
+<p>Apart from the above mentioned aggregations we also want to have hourly, weekly and monthly view of every aggregate.</p>
 
-<p>Whenever we think of any software application it is obvious that we cannot achieve every requirement with</p>
+<p>Whenever we think of any software application it is obvious that we cannot achieve every requirement with it.</p>
 
 <p><strong><em>Approach to calculate aggregations</em></strong></p>
 
-<p>If we observe the kind of results we are interested in it seems pretty straight forward to have 3 tables for every aggregate. Where each table represent hourly, weekly and monthly stats. The idea of having separate tables for different timeframe appears to be clean and elegant idea. But it is not flexible enough. Why?</p>
+<p>If we observe the kind of results we are interested in, it seems pretty straight forward to have 3 tables for every aggregate. Where each table represent hourly, weekly and monthly stats. The idea of having separate tables for different timeframe appears to be clean and elegant idea. But it is not flexible enough. Why?</p>
 
-<p>Lets say we get a new requirement in future where we want to get the biweekly view of the data along with the existing hourly, weekly and monthly views. In this case we will end up creating another table agian. Its clear that this approach is not flexible. Then what is the right approach?</p>
+<p>Let’s say we get a new requirement in future where we want to get the biweekly view of the data along with the existing hourly, weekly and monthly views. In this case we will end up creating another table again. It’s clear that this approach is not flexible. Then what is the right approach?</p>
 
-<p>Better approach is, we just create aggregate of the minimum timeframe we are interested, in this case it is hourly. If we have the hourly aggregation we can derive weekly , monthly , biweekly or any other timeframe in future.May be we cannot go less than an hour in this approach but that is present in the first approach also.</p>
+<p>Better approach is, we just create aggregate of the minimum timeframe we are interested, in this case it is hourly. If we have the hourly aggregation we can derive weekly , monthly , biweekly or any other timeframe in future. May be we cannot go less than an hour in this approach but that is present in the first approach also.</p>
 
-<p>So now our solution to derive required statistics from the data is, we create one table for every aggreate (Country, City, State). Lets see the structure of the output we will generate.</p>
+<p>So now our solution to derive required statistics from the data is, we create one table for every aggregate (Country, City, State). Let’s see the structure of the output we will generate.</p>
 
 <ol>
   <li>CountryWiseStats - (datetime,country.count)</li>
@@ -228,13 +228,13 @@ Everyrecord in the input data has five columns and represents single user sessio
 
 <p><strong><em>Reporting</em></strong></p>
 
-<p>If you remember my first blog, we disucssed that along with the stats calculations there is a need for reporting mechanism also. So how does we show these hourly,weekly and monthly results in reports? We will use <a href="https://zeppelin.incubator.apache.org/">Apache Zeppelin</a> to display the results.</p>
+<p>If you remember my first blog, we discussed that along with the stats calculations there is a need for reporting mechanism also. So how do we show these hourly, weekly and monthly results in reports? We will use <a href="https://zeppelin.incubator.apache.org/">Apache Zeppelin</a> to display the results.</p>
 
-<p>Zeppelin is a great tool to show the reports in graphs by default. But if you observe our results apart from hourly aggregate, others are still not ready to be shown in charts. We will get the weekly and monthly aggregations calculated on the fly by writing code inside zeppelin notebook.It proves the we are not only using zeppelin just for reporting but also for the processing. In this way zepplein plays a vital role in achieving our end goal.</p>
+<p>Zeppelin is a great tool to show the reports in graphs by default. But if you observe our results apart from hourly aggregate, others are still not ready to be shown in charts. We will get the weekly and monthly aggregations calculated on the fly by writing code inside zeppelin notebook. It proves the we are not only using zeppelin just for reporting but also for the processing. In this way zeppelin plays a vital role in achieving our end goal.</p>
 
-<p>Its also important that if you want to keep track with my blog please make sure to go through you are familiar with zeppelin. You can get started with zeppelin in <a href="http://zeppelin.apache.org/docs/0.6.0-incubating-SNAPSHOT">Zeppelin docs</a></p>
+<p>It’s also important that if you want to keep track with my blog please make sure to be familiar with zeppelin. You can get started with zeppelin in <a href="http://zeppelin.apache.org/docs/0.6.0-incubating-SNAPSHOT">Zeppelin docs</a></p>
 
-<p>This gives a concrete idea of what is the exact problem and analysis we will perform. In the next we will directly get into the code snippets to get the required results.</p>
+<p>This gives a concrete idea of what is the exact problem and analysis we will perform. In the next post we will directly get into the code snippets to get the required results.</p>
 
 
 

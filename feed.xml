@@ -10,7 +10,7 @@
 				<title>Building Spark Streaming App - Part 2 (Data Format,Types of Aggregations)</title>
 				
 				
-					<description>&lt;p&gt;In the previous &lt;a href=&quot;http://shashidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html&quot;&gt;blog&lt;/a&gt; we have discussed about what is the application about, a brief overview of the business problem and high level requirements. In this blog we will focus on specifics like what is the data format? What are the types of aggregations we are interested in?&lt;/p&gt;
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html&quot;&gt;blog&lt;/a&gt; we have discussed  about application, a brief overview of the business problem and high level requirements. In this blog we will focus on specifics like what is the required data format? What are the types of aggregations we are interested in?&lt;/p&gt;
 
 </description>
 				
