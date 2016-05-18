@@ -1,5 +1,5 @@
 
-<!-- Blog Layout Start -->
+<!-- Post Layout Start -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/blog/page2/">
-  <title>Shashidhar  | Blog</title>
+  <link rel="canonical" href="/spark/2016/05/19/building-spark-streaming-app-part-3.html">
+  <title>Shashidhar  | Building Spark Streaming App - Part 3 (First Iteration)</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -65,11 +65,16 @@
   
 
 
+  <!-- Syntax highlight in post pages -->
+
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/monokai_sublime.min.css">
+
+
+
 
 </head>
 
 <!-- HEAD End -->
-
 
   <body>
 
@@ -138,12 +143,11 @@
 <!-- Navigation End -->
 
 
-    <section id="page" class="container content-section text-center">
-
+    <section id="post" class="container content-section">
       <div class="row">
-        <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+        <div class="col-md-10 col-md-offset-1">
 
-        
+          
 <!-- Swipe Instructions Start -->
 
 <div id="swipe-instruction">
@@ -152,12 +156,12 @@
     <i id="hand-swipe" class="fa fa-hand-o-up"></i>
     <p><strong>
     
-      Did you know that you can navigate the archive pages by swiping left and right?
+      Did you know that you can navigate the posts by swiping left and right?
     
     </strong></p>
     <button type="button" class="btn btn-default ok-btn close-swipe-instruction">
       
-        Got it!
+        Awesome!
       
     </button>
   </div>
@@ -166,87 +170,118 @@
 <!-- Swipe Instructions End -->
 
 
-        <h2 id="blog">Blog</h2>
-
-
-        <div>
-          
+          <h1><strong>Building Spark Streaming App - Part 3 (First Iteration)</strong></h1>
+          <h4><strong>19 May 2016</strong>
+            <!-- <small> .  . <a href="/spark/2016/05/19/building-spark-streaming-app-part-3.html#disqus_thread">Comments</a>
             
-<!-- Post List Start -->
+            </small> -->
+          </h4>
 
-<h4 align="left">
-  <strong>31 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/31/map%20reduce-history.html">
-    <strong>Mapreduce History</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/31/map%20reduce-history.html#disqus_thread">Comments</a></small> -->
-</h4>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">blog</a> we have discussed  about data formats we are dealing with and the results we have to generate. In this blog we will focus on implementing the same. Let’s see the first method of implementation, i.e.  <strong><em>Iteration 1</em></strong>. Going forward, we will discuss on required changes on this implementation and need for the changes. 
+<strong>Streaming Components</strong></p>
 
-<!-- Post List End -->
+<p>In any streaming application there will be three components, i.e Input Source, processing and Output Store. Hence, in first iteration we will use following,</p>
+
+<ol>
+  <li>Input Source - Files</li>
+  <li>Processing - Spark Streaming APIs</li>
+  <li>Output Store - Files</li>
+</ol>
+
+<p>By looking at these components, it’s obvious that we will be using FileInput and FileOutput streams of spark streaming engine in this phase.</p>
+
+<p>Before we start looking at coding for different components let’s see data structure we will be using to map input record into a scala object.</p>
+
+<p><strong>SensorRecord</strong></p>
+
+<pre>
+<code data-trim="" class="Java">
+ case class SensorRecord(dateTime: DateTime,
+	country:String,
+	state:String,
+	city:String,
+	sensorStatus:String)
+</code>
+</pre>
+
+<p><strong>Receiver</strong></p>
+
+<p>As I have mentioned above, we will be using FileInput Stream to read our source data .So that we can process them in spark streaming. Following code snippet shows how to create DStream from files.</p>
+
+<pre>
+<code data-trim="" class="Java">
+	val ssc = new StreamingContext(sparkConf,Seconds(batchTime))
+	val data = ssc.textFileStream(streamingConfig.getString("source-dir"))
+</code>
+</pre>
+
+<p>If you observe  the code snippet, there are two parameters.</p>
+
+<ol>
+  <li><em>batchTime</em> is the spark streaming batch interval.</li>
+  <li><em>source-dir</em> is the path from where we want to pull the data.</li>
+</ol>
+
+<p><strong>Aggregations</strong></p>
+
+<p>As we have discussed in previous blog, we are interested in generating three aggregations. Lets see <strong>Country wise statistics</strong> calculation function.</p>
+
+<pre>
+<code data-trim="" class="Java">
+ def calculateCountryStats(parsedDstream:DStream[SensorRecord],windowInterval:Int,slideInterval:Int):DStream[String]=
+  {
+	val countryAggregation = parsedDstream.map(eachRec=&gt;((eachRec.dateTime,eachRec.country),1))
+	val resultStream = countryAggregation.window(Seconds(windowInterval),Seconds(slideInterval)).groupByKey()
+		.mapValues(_.size)
+	resultStream.map
+	{
+		case ((dateTime:DateTime,country:String),count:Int) =&gt; 
+				dateTime.toString("yyyy-MM-dd HH:mm:ss")+","+country+","+count
+	}
+ }
+</code>
+</pre>
+
+<p>This function calculates country wise aggregations and returns back results in <em>csv</em> format.</p>
+
+<p>Function takes three parameters</p>
+
+<ol>
+  <li><em>parsedDstream</em> is the DStream of each record from input data mapped to SensorRecord object.</li>
+  <li><em>windowInterval</em> is the window for which aggregation is done.</li>
+  <li><em>slideInterval</em> is the slide time which controls slide interval inside a given window.</li>
+</ol>
+
+<p>Function returns DStream of String, and each record in output DStream will be in csv format <strong>2016-03-26 07:00:00,India,2</strong>, and they are self explainatory. Observe that we are having timestamps till hour.</p>
+
+<p>Similarly we will have two other functions to calculate <strong>State wise statistics</strong> and <strong>City wise statistics</strong>.</p>
+
+<p><strong>Output</strong></p>
+
+<p>Finally we will store the output into files using spark streaming API .</p>
+
+<pre>
+<code data-trim="" class="Java">
+ calculateCountryStats(parsedDstream,windowTime,slideTime).foreachRDD((outputRdd,time)=&gt;
+ {
+	if(!outputRdd.isEmpty()) 
+	  outputRdd.saveAsTextFile(streamingConfig.getString("output-dir")+"/countryStats/"+time.toString())
+ })
+
+</code>
+</pre>
+
+<p>This completes the spark streaming side of coding where we read data and populate the hourly aggregates into files. In next blog we will see how we show these results in zeppelin.</p>
+
+<p><em>For complete code refer</em> <strong><em>master branch</em></strong> of <a href="https://github.com/Shasidhar/sensoranalytics">Sensor analytics</a> repository*</p>
+
+
 
           
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>30 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html">
-    <strong>Secondary Sorting in Hadoop</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
+          <br><br>
+          <div id="disqus_thread"></div>
+          <br><br>
           
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>30 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/30/hadoop-history.html">
-    <strong>Hadoop history</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/30/hadoop-history.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
-          
-        </div>
-
-        
-<!-- Pagination Links Start -->
-
-<div class="pagination">
-
-  <h4>
-
-  
-    <a href="/blog/index.html" class="previous">Newer Posts</a>
-  
-
-  
-
-  
-
-  </h4>
-
-</div>
-
-<!-- Pagination Links End -->
-
-
-        
 <!-- Social Buttons Start -->
 <style>
 .social-buttons {
@@ -275,20 +310,7 @@
         </div>
       </div>
     </section>
-
     
- <!-- Footer Start -->
-
-<footer>
-    <div class="container text-center">
-      <!-- <p>Copyright &copy; Shashidhar 2016</p> -->
-    </div>
-</footer>
-
-<p><br><br><br><br><br><br></p>
-
-<!-- Footer End -->
-
 
     
 <!-- Javascript Start -->
@@ -326,10 +348,29 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 
 
 
+  <!-- Syntax highlight in post pages
+
+  <script src="/js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>-->
+
+
+
+
 
 
 
   <!-- Disqus -->
+
+  
+
+    <script type="text/javascript">
+    var disqus_shortname = 'shashidhare';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
 
   
 
@@ -358,71 +399,81 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 
 
 
+  <!-- Share buttons Start -->
+
+  <script src="/js/rrssb.min.js"></script>
+
+  <!-- Share buttons End -->
+
+
+
 
 
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Blog', 'https://shasidhare.com/blog/page2/index.html');
+    history.pushState({}, 'Building Spark Streaming App - Part 3 (First Iteration)', 'https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-3.html');
   }
 }
 </script>
 
 
 
-
-
-  <!-- Blog Gesture Navigation Start -->
+  <!-- Post Gesture Navigation Start -->
 
   <script type="text/javascript" src="/js/hammer.min.js"></script>
 
   <script>
-    var page = document.getElementById('page');
+    var post = document.getElementById('post');
 
-    new Hammer(page).on('swipeleft', function(event) {
+    new Hammer(post).on('swipeleft', function(event) {
+      addTohistory();
+      
+        document.location.replace("/spark/2016/05/08/building-spark-streaming-app-part-2.html");
+      
+    });
+
+    new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
         document.location.replace("");
       
     });
-    new Hammer(page).on('swiperight', function(event) {
-      addTohistory();
-      
-        document.location.replace("/blog/index.html");
-      
-    });
   </script>
 
-  <!-- Blog Gesture Navigation Start -->
+  <!-- Post Gesture Navigation Start -->
 
 
 
 
 
-  <!-- Swipe Instructions for Blog Start -->
+
+
+
+
+  <!-- Swipe Instructions for Post Start -->
 
   <script>
     $(document).ready(function(){
-      if(!localStorage.getItem('blog-swipeshowed')){
+      if(!localStorage.getItem('post-swipeshowed')){
         $("#swipe-instruction").fadeIn();
         $("#swipe-instruction .close-swipe-instruction").click(function(){
           $("#swipe-instruction").fadeOut();
         });
-        localStorage.setItem('blog-swipeshowed', true);
+        localStorage.setItem('post-swipeshowed', true);
       }
     });
   </script>
 
-  <!-- Swipe Instructions for Blog End -->
-
-
+  <!-- Swipe Instructions for Post End -->
 
 
 
 <!-- Javascript End -->
 
 
+
   </body>
 </html>
 
-<!-- Blog Layout End -->
+<!-- Post Layout End -->

@@ -1,5 +1,5 @@
 
-<!-- Blog Layout Start -->
+<!-- Post Layout Start -->
 
 <!DOCTYPE html>
 <html lang="en">
@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/blog/page2/">
-  <title>Shashidhar  | Blog</title>
+  <link rel="canonical" href="/spark/2016/05/08/building-spark-streaming-app-part-2.html">
+  <title>Shashidhar  | Building Spark Streaming App - Part 2 (Data Format,Types of Aggregations)</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -65,11 +65,16 @@
   
 
 
+  <!-- Syntax highlight in post pages -->
+
+  <link rel="stylesheet" type="text/css" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/8.2/styles/monokai_sublime.min.css">
+
+
+
 
 </head>
 
 <!-- HEAD End -->
-
 
   <body>
 
@@ -138,12 +143,11 @@
 <!-- Navigation End -->
 
 
-    <section id="page" class="container content-section text-center">
-
+    <section id="post" class="container content-section">
       <div class="row">
-        <div class="col-md-10 col-md-offset-1 col-xs-10 col-xs-offset-1">
+        <div class="col-md-10 col-md-offset-1">
 
-        
+          
 <!-- Swipe Instructions Start -->
 
 <div id="swipe-instruction">
@@ -152,12 +156,12 @@
     <i id="hand-swipe" class="fa fa-hand-o-up"></i>
     <p><strong>
     
-      Did you know that you can navigate the archive pages by swiping left and right?
+      Did you know that you can navigate the posts by swiping left and right?
     
     </strong></p>
     <button type="button" class="btn btn-default ok-btn close-swipe-instruction">
       
-        Got it!
+        Awesome!
       
     </button>
   </div>
@@ -166,87 +170,79 @@
 <!-- Swipe Instructions End -->
 
 
-        <h2 id="blog">Blog</h2>
-
-
-        <div>
-          
+          <h1><strong>Building Spark Streaming App - Part 2 (Data Format,Types of Aggregations)</strong></h1>
+          <h4><strong>08 May 2016</strong>
+            <!-- <small> .  . <a href="/spark/2016/05/08/building-spark-streaming-app-part-2.html#disqus_thread">Comments</a>
             
-<!-- Post List Start -->
+            </small> -->
+          </h4>
 
-<h4 align="left">
-  <strong>31 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/31/map%20reduce-history.html">
-    <strong>Mapreduce History</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/31/map%20reduce-history.html#disqus_thread">Comments</a></small> -->
-</h4>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/04/08/building-spark-streaming-app-part-1.html">blog</a> we have discussed  about application, a brief overview of the business problem and high level requirements. In this blog we will focus on specifics like what is the required data format? What are the types of aggregations we are interested in?</p>
 
-<!-- Post List End -->
+<p><strong>Data Fromat</strong></p>
+
+<p>The actual input data we were receiving from the Wi-Fi hotspot devices used to capture lot of information. But in this use case we will use dummy data. 
+Every record in the input data has five columns and represents single user session within the system for a given time.</p>
+
+<ol>
+  <li>Timestamp - Denotes the time when a record in captured.</li>
+  <li>Country - Defines country</li>
+  <li>State - Defines State</li>
+  <li>City - Defines city</li>
+  <li>Sensor Status - Defines whether user logged in or not. (True/False)</li>
+</ol>
+
+<p>As you observe it’s a pretty simple data to understand and most of the fields are self explanatory. Even with this small data format we will see how much variety of insights we can achieve.</p>
+
+<p><strong><em>Types of Aggregations</em></strong></p>
+
+<p>Now we know the type of data we are dealing with, let’s see what are the insights we want to derive from the data. From high level we can divide aggregations into three categories.</p>
+
+<ol>
+  <li>Country wise statistics - We need to get number of users using the Wi-Fi hotspots in a given country</li>
+  <li>State wise statistics - We need to get number of users using the Wi-Fi hotspots in a given state</li>
+  <li>City wise statistics - We need to get number of users using the Wi-Fi in a given City. Also we need to determine how many users logged in to the system and how many have not.</li>
+</ol>
+
+<p>Apart from the above mentioned aggregations we also want to have hourly, weekly and monthly view of every aggregate.</p>
+
+<p>Whenever we think of any software application it is obvious that we cannot achieve every requirement with it.</p>
+
+<p><strong><em>Approach to calculate aggregations</em></strong></p>
+
+<p>If we observe the kind of results we are interested in, it seems pretty straight forward to have 3 tables for every aggregate. Where each table represent hourly, weekly and monthly stats. The idea of having separate tables for different timeframe appears to be clean and elegant idea. But it is not flexible enough. Why?</p>
+
+<p>Let’s say we get a new requirement in future where we want to get the biweekly view of the data along with the existing hourly, weekly and monthly views. In this case we will end up creating another table again. It’s clear that this approach is not flexible. Then what is the right approach?</p>
+
+<p>Better approach is, we just create aggregate of the minimum timeframe we are interested, in this case it is hourly. If we have the hourly aggregation we can derive weekly , monthly , biweekly or any other timeframe in future. May be we cannot go less than an hour in this approach but that is present in the first approach also.</p>
+
+<p>So now our solution to derive required statistics from the data is, we create one table for every aggregate (Country, City, State). Let’s see the structure of the output we will generate.</p>
+
+<ol>
+  <li>CountryWiseStats - (datetime,country.count)</li>
+  <li>StateWiseStats - (datetime,state.count)</li>
+  <li>CityWiseStats - (datetime,city,sensorstatus.count)</li>
+</ol>
+
+<p>Once we have the results calculated, next step is to make them available for the user.</p>
+
+<p><strong><em>Reporting</em></strong></p>
+
+<p>If you remember my first blog, we discussed that along with the stats calculations there is a need for reporting mechanism also. So how do we show these hourly, weekly and monthly results in reports? We will use <a href="https://zeppelin.incubator.apache.org/">Apache Zeppelin</a> to display the results.</p>
+
+<p>Zeppelin is a great tool to show the reports in graphs by default. But if you observe our results apart from hourly aggregate, others are still not ready to be shown in charts. We will get the weekly and monthly aggregations calculated on the fly by writing code inside zeppelin notebook. It proves the we are not only using zeppelin just for reporting but also for the processing. In this way zeppelin plays a vital role in achieving our end goal.</p>
+
+<p>It’s also important that if you want to keep track with my blog please make sure to be familiar with zeppelin. You can get started with zeppelin in <a href="http://zeppelin.apache.org/docs/0.6.0-incubating-SNAPSHOT">Zeppelin docs</a></p>
+
+<p>This gives a concrete idea of what is the exact problem and analysis we will perform. In the next post we will directly get into the code snippets to get the required results.</p>
+
+
 
           
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>30 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html">
-    <strong>Secondary Sorting in Hadoop</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/30/secondary-sorting--in-hadoop.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
+          <br><br>
+          <div id="disqus_thread"></div>
+          <br><br>
           
-            
-<!-- Post List Start -->
-
-<h4 align="left">
-  <strong>30 Jan 2015 &nbsp;</strong>
-  <!-- <small>.  .</small> -->
-  <br class="visible-xs-block">
-  <a href="/hadoop/2015/01/30/hadoop-history.html">
-    <strong>Hadoop history</strong>
-  </a>
-  <br class="visible-xs-block">
-  <!-- <small><a href="/hadoop/2015/01/30/hadoop-history.html#disqus_thread">Comments</a></small> -->
-</h4>
-
-<!-- Post List End -->
-
-          
-        </div>
-
-        
-<!-- Pagination Links Start -->
-
-<div class="pagination">
-
-  <h4>
-
-  
-    <a href="/blog/index.html" class="previous">Newer Posts</a>
-  
-
-  
-
-  
-
-  </h4>
-
-</div>
-
-<!-- Pagination Links End -->
-
-
-        
 <!-- Social Buttons Start -->
 <style>
 .social-buttons {
@@ -275,20 +271,7 @@
         </div>
       </div>
     </section>
-
     
- <!-- Footer Start -->
-
-<footer>
-    <div class="container text-center">
-      <!-- <p>Copyright &copy; Shashidhar 2016</p> -->
-    </div>
-</footer>
-
-<p><br><br><br><br><br><br></p>
-
-<!-- Footer End -->
-
 
     
 <!-- Javascript Start -->
@@ -326,10 +309,29 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 
 
 
+  <!-- Syntax highlight in post pages
+
+  <script src="/js/highlight.pack.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>-->
+
+
+
+
 
 
 
   <!-- Disqus -->
+
+  
+
+    <script type="text/javascript">
+    var disqus_shortname = 'shashidhare';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+    </script>
 
   
 
@@ -358,71 +360,81 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 
 
 
+  <!-- Share buttons Start -->
+
+  <script src="/js/rrssb.min.js"></script>
+
+  <!-- Share buttons End -->
+
+
+
 
 
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Blog', 'https://shasidhare.com/blog/page2/index.html');
+    history.pushState({}, 'Building Spark Streaming App - Part 2 (Data Format,Types of Aggregations)', 'https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html');
   }
 }
 </script>
 
 
 
-
-
-  <!-- Blog Gesture Navigation Start -->
+  <!-- Post Gesture Navigation Start -->
 
   <script type="text/javascript" src="/js/hammer.min.js"></script>
 
   <script>
-    var page = document.getElementById('page');
+    var post = document.getElementById('post');
 
-    new Hammer(page).on('swipeleft', function(event) {
+    new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("");
+        document.location.replace("/spark/2016/04/08/building-spark-streaming-app-part-1.html");
       
     });
-    new Hammer(page).on('swiperight', function(event) {
+
+    new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/blog/index.html");
+        document.location.replace("/spark/2016/05/19/building-spark-streaming-app-part-3.html");
       
     });
   </script>
 
-  <!-- Blog Gesture Navigation Start -->
+  <!-- Post Gesture Navigation Start -->
 
 
 
 
 
-  <!-- Swipe Instructions for Blog Start -->
+
+
+
+
+  <!-- Swipe Instructions for Post Start -->
 
   <script>
     $(document).ready(function(){
-      if(!localStorage.getItem('blog-swipeshowed')){
+      if(!localStorage.getItem('post-swipeshowed')){
         $("#swipe-instruction").fadeIn();
         $("#swipe-instruction .close-swipe-instruction").click(function(){
           $("#swipe-instruction").fadeOut();
         });
-        localStorage.setItem('blog-swipeshowed', true);
+        localStorage.setItem('post-swipeshowed', true);
       }
     });
   </script>
 
-  <!-- Swipe Instructions for Blog End -->
-
-
+  <!-- Swipe Instructions for Post End -->
 
 
 
 <!-- Javascript End -->
 
 
+
   </body>
 </html>
 
-<!-- Blog Layout End -->
+<!-- Post Layout End -->

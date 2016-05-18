@@ -7,6 +7,20 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building Spark Streaming App - Part 3 (First Iteration)</title>
+				
+				
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html&quot;&gt;blog&lt;/a&gt; we have discussed  about data formats we are dealing with and the results we have to generate. In this blog we will focus on implementing the same. Let’s see the first method of implementation, i.e.  &lt;strong&gt;&lt;em&gt;Iteration 1&lt;/em&gt;&lt;/strong&gt;. Going forward, we will discuss on required changes on this implementation and need for the changes. 
+&lt;strong&gt;Streaming Components&lt;/strong&gt;&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Thu, 19 May 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-3.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-3.html</guid>
+			</item>
+		
+			<item>
 				<title>Building Spark Streaming App - Part 2 (Data Format,Types of Aggregations)</title>
 				
 				
@@ -15,8 +29,8 @@
 </description>
 				
 				<pubDate>Sun, 08 May 2016 03:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-%202.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-%202.html</guid>
+				<link>https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html</guid>
 			</item>
 		
 			<item>
@@ -121,19 +135,6 @@
 				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html</guid>
-			</item>
-		
-			<item>
-				<title>Mapreduce History</title>
-				
-				
-					<description>&lt;p&gt;In this blog, lets look into the roots of Map Reduce idea. From where does the idea of Map-Reduce came and some background history about it.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/hadoop/2015/01/31/map%20reduce-history.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/31/map%20reduce-history.html</guid>
 			</item>
 		
 	</channel>
