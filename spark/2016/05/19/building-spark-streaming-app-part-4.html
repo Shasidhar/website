@@ -177,13 +177,13 @@
             </small> -->
           </h4>
 
-          <p>In previous <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">blog</a> we discussed about how we populate the results in output files. As I mentioned in last blog , we will be discussing about how we show the results to the business user. In my first blog of the series we decided to use Zepplin as an interface to show end results. So, lets see how we show results in Zepplin.</p>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">blog</a> we discussed about how we populate the results in output file. As I mentioned in last blog , we will be discussing about how we show the results to the business user. In my first blog of the series we decided to use Zepplin as an interface to show end results. So, let’s see how we show results in Zepplin.</p>
 
 <h3 id="zeppelin-dataloading">Zeppelin Dataloading</h3>
 
 <p>First step in using Zeppelin is to make zeppelin fetch data from our text files. Actually there is no special exercise we need to do it, we can directly use the normal spark way of loading the data and create RDDs or Dataframes inside zeppelin directly. One good thing about zeppelin is, once we start zeppelin, we get spark context created by default for us, it is similar to how we get Spark Context when we start spark shell.</p>
 
-<p>In our case we have data in csv format, we will need to read RDD and create Dataframes so that we can directly write queries and get the required results. So, i will show creation of Dataframe for country stats here.</p>
+<p>In our case we have data in csv format, we will need to read RDD and create Dataframes so that we can directly write queries and get the required results. So, I will show creation of Dataframe for country stats here.</p>
 
 <pre>
 <code data-trim="" class="Java">
@@ -201,15 +201,15 @@
 
 <h3 id="zeppelin-for-visualization">Zeppelin for visualization</h3>
 
-<p>Lets start with what this zeppelin is all about first.Zeppelin provides notebook based web interface for apache spark framework. Its very powerful when we need to publish and share the reports across different people. Along with spark zeppelin supports other frameworks also like cassandra, flink etc. Its very easy to setup and start using it. In our case we will be doing native spark coding inside zeppelin to show the results in different charts.</p>
+<p>Let’s start with what  zeppelin is all about ?, Zeppelin provides notebook based web interface for apache spark framework. It’s very powerful when we need to publish and share the reports across different people. Along with spark, zeppelin also supports other frameworks  like cassandra, flink etc. It’s very easy to setup and start using it. In our case we will be doing native spark coding inside zeppelin to show the results in different charts.</p>
 
-<p>Our output has hourly aggregated results. Lets look into the format of the result we generated. Each row in a counrty wise aggregate is having <em>(2016-03-26 07:00:00,India,2)</em> format. We know in Zeppelin we want different grouping that is hourly, daily, weekly and monthly. Lets see how we achieve each of them.</p>
+<p>Our output has hourly aggregated results. Let’s look into the format of the result we generated. Each row in a country wise aggregate is having <em>(2016-03-26 07:00:00,India,2)</em> format. We know in Zeppelin we want different grouping that is hourly, daily, weekly and monthly. Let’s see how we achieve each of them.</p>
 
 <h3 id="recent-hours-aggregation">Recent Hours Aggregation</h3>
 
-<p>In this aggregate we want to see the report of last given recent hours, means user will give input of how many hour of report he is interested in.</p>
+<p>In this aggregate we want to see the report of last given recent hours, means user will give input of how many hours of report he is interested in.</p>
 
-<p>In order to achieve this we want UDF to validate the record belongs to present date and returns all the records fitting inside the recent hour provided by the user. Following is the UDF which will do the required filtering.</p>
+<p>In order to achieve this we want UDF to validate the record belongs to present date and return all qualified records for given hours. Following is the UDF which will do the required filtering.</p>
 
 <pre>
 <code data-trim="" class="Java">
@@ -269,11 +269,12 @@
 </code>
 </pre>
 
-<p>One thing to be observed in this case is, we are using all the built-in UDFs spark provides exactly the same way directly inside Zeppelin SQL prompt. This shows that how Zeppelin along with Spark, is easy to use and yet powerful for visualizing Bigdata.</p>
+<p>One thing to be observed in this case is,  we are using all the UDFs available in spark  directly in Zeppelin SQL prompt without any changes. This shows that how Zeppelin along with Spark, is easy to use and yet powerful for visualizing Bigdata.</p>
 
 <p>For complete code related to zeppelin, refer to <a href="https://github.com/Shasidhar/sensoranalytics/blob/kafka/core/src/main/resources/zepplin.txt">Zeppelin.txt</a></p>
 
-<p>This completes one complete iteration of our whole project. Till now we have discussed about reading and writing results with files using spark streaming file APIs. Along with usage of zeppelin to fetch these results and show in charts. So, next step in the series would be to integrate Kafka into the system.</p>
+<p>This completes one complete iteration of our whole project. Till now we have discussed about reading and writing results with files using spark streaming file APIs. Along with usage of zeppelin to fetch these results and show in charts. 
+So, next step in the series would be to integrate Kafka into the system.</p>
 
 
 

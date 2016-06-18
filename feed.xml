@@ -10,13 +10,13 @@
 				<title>Building Spark Streaming App - Part 4 (Zeppelin Visualization)</title>
 				
 				
-					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html&quot;&gt;blog&lt;/a&gt; we discussed about how we populate the results in output files. As I mentioned in last blog , we will be discussing about how we show the results to the business user. In my first blog of the series we decided to use Zepplin as an interface to show end results. So, lets see how we show results in Zepplin.&lt;/p&gt;
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html&quot;&gt;blog&lt;/a&gt; we discussed about how we populate the results in output file. As I mentioned in last blog , we will be discussing about how we show the results to the business user. In my first blog of the series we decided to use Zepplin as an interface to show end results. So, let’s see how we show results in Zepplin.&lt;/p&gt;
 
 </description>
 				
-				<pubDate>Sun, 19 Jun 2016 03:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/spark/2016/06/19/building-spark-streaming-app-part-4.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/spark/2016/06/19/building-spark-streaming-app-part-4.html</guid>
+				<pubDate>Thu, 19 May 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html</guid>
 			</item>
 		
 			<item>
