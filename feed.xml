@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building Spark Streaming App - Part 4 (Zeppelin Visualization)</title>
+				
+				
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html&quot;&gt;blog&lt;/a&gt; we discussed about how we populate the results in output files. As I mentioned in last blog , we will be discussing about how we show the results to the business user. In my first blog of the series we decided to use Zepplin as an interface to show end results. So, lets see how we show results in Zepplin.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Thu, 19 May 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html</guid>
+			</item>
+		
+			<item>
 				<title>Building Spark Streaming App - Part 3 (First Iteration)</title>
 				
 				
@@ -122,19 +135,6 @@
 				<pubDate>Tue, 27 Oct 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html</guid>
-			</item>
-		
-			<item>
-				<title>Understanding Mapreduce idea</title>
-				
-				
-					<description>&lt;p&gt;In my previous blog we have seen about the concept of Map reduce. This blog illustrates how the idea of Mapreduce can be achieved in simple java programs and then we take a step ahead to understand how it is implemented in hadoop. It lays out the different components of hadoop Mapreduce implementation for better understanding. Now, let’s go further and understand the idea of Map reduce by writing simple java program and analyse the solution.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Sat, 31 Jan 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/hadoop/2015/01/31/understanding-mapreduce-idea-.html</guid>
 			</item>
 		
 	</channel>

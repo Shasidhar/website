@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2016/05/19/building-spark-streaming-app-part-3.html">
-  <title>Shashidhar  | Building Spark Streaming App - Part 3 (First Iteration)</title>
+  <link rel="canonical" href="/spark/2016/05/19/building-spark-streaming-app-part-4.html">
+  <title>Shashidhar  | Building Spark Streaming App - Part 4 (Zeppelin Visualization)</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,110 +170,110 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Building Spark Streaming App - Part 3 (First Iteration)</strong></h1>
+          <h1><strong>Building Spark Streaming App - Part 4 (Zeppelin Visualization)</strong></h1>
           <h4><strong>19 May 2016</strong>
-            <!-- <small> .  . <a href="/spark/2016/05/19/building-spark-streaming-app-part-3.html#disqus_thread">Comments</a>
+            <!-- <small> .  . <a href="/spark/2016/05/19/building-spark-streaming-app-part-4.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>In previous <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">blog</a> we have discussed  about data formats we are dealing with and the results we have to generate. In this blog we will focus on implementing the same. Let’s see the first method of implementation, i.e.  <strong><em>Iteration 1</em></strong>. Going forward, we will discuss on required changes on this implementation and need for the changes. 
-<strong>Streaming Components</strong></p>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">blog</a> we discussed about how we populate the results in output files. As I mentioned in last blog , we will be discussing about how we show the results to the business user. In my first blog of the series we decided to use Zepplin as an interface to show end results. So, lets see how we show results in Zepplin.</p>
 
-<p>In any streaming application there will be three components, i.e Input Source, processing and Output Store. Hence, in first iteration we will use following,</p>
+<h3 id="zeppelin-dataloading">Zeppelin Dataloading</h3>
 
-<ol>
-  <li>Input Source - Files</li>
-  <li>Processing - Spark Streaming APIs</li>
-  <li>Output Store - Files</li>
-</ol>
+<p>First step in using Zeppelin is to make zeppelin fetch data from our text files. Actually there is no special exercise we need to do it, we can directly use the normal spark way of loading the data and create RDDs or Dataframes inside zeppelin directly. One good thing about zeppelin is, once we start zeppelin, we get spark context created by default for us, it is similar to how we get Spark Context when we start spark shell.</p>
 
-<p>By looking at these components, it’s obvious that we will be using FileInput and FileOutput streams of spark streaming engine in this phase.</p>
-
-<p>Before we start looking at coding for different components let’s see data structure we will be using to map input record into a scala object.</p>
-
-<p><strong>SensorRecord</strong></p>
+<p>In our case we have data in csv format, we will need to read RDD and create Dataframes so that we can directly write queries and get the required results. So, i will show creation of Dataframe for country stats here.</p>
 
 <pre>
 <code data-trim="" class="Java">
- case class SensorRecord(dateTime: DateTime,
-	country:String,
-	state:String,
-	city:String,
-	sensorStatus:String)
+  case class countryStats(date:Date,hour:Int,country:String,count:Int)
+
+  val countryStatDF =  sc.cassandraTable("sensoranalytics","countrystats").map(row=&gt;{
+      val cal = Calendar.getInstance()
+      cal.setTimeInMillis(DateTimeFormat.forPattern(pattern).parseDateTime(row.get[String]("date")).getMillis)
+      countryStats(new Date(cal.getTimeInMillis),cal.get(Calendar.HOUR_OF_DAY),row.get[String]("country"),row.get[Int]("count"))
+    }).toDF
 </code>
 </pre>
 
-<p><strong>Receiver</strong></p>
+<p>If you see the code, we have a case class for countrystats first and then normal transformation to convert RDD into Dataframe.Similiarly we will be having Dataframes for other result sets also.</p>
 
-<p>As I have mentioned above, we will be using FileInput Stream to read our source data .So that we can process them in spark streaming. Following code snippet shows how to create DStream from files.</p>
+<h3 id="zeppelin-for-visualization">Zeppelin for visualization</h3>
 
-<pre>
-<code data-trim="" class="Java">
-	val ssc = new StreamingContext(sparkConf,Seconds(batchTime))
-	val data = ssc.textFileStream(streamingConfig.getString("source-dir"))
-</code>
-</pre>
+<p>Lets start with what this zeppelin is all about first.Zeppelin provides notebook based web interface for apache spark framework. Its very powerful when we need to publish and share the reports across different people. Along with spark zeppelin supports other frameworks also like cassandra, flink etc. Its very easy to setup and start using it. In our case we will be doing native spark coding inside zeppelin to show the results in different charts.</p>
 
-<p>If you observe  the code snippet, there are two parameters.</p>
+<p>Our output has hourly aggregated results. Lets look into the format of the result we generated. Each row in a counrty wise aggregate is having <em>(2016-03-26 07:00:00,India,2)</em> format. We know in Zeppelin we want different grouping that is hourly, daily, weekly and monthly. Lets see how we achieve each of them.</p>
 
-<ol>
-  <li><em>batchTime</em> is the spark streaming batch interval.</li>
-  <li><em>source-dir</em> is the path from where we want to pull the data.</li>
-</ol>
+<h3 id="recent-hours-aggregation">Recent Hours Aggregation</h3>
 
-<p><strong>Aggregations</strong></p>
+<p>In this aggregate we want to see the report of last given recent hours, means user will give input of how many hour of report he is interested in.</p>
 
-<p>As we have discussed in previous blog, we are interested in generating three aggregations. Lets see <strong>Country wise statistics</strong> calculation function.</p>
+<p>In order to achieve this we want UDF to validate the record belongs to present date and returns all the records fitting inside the recent hour provided by the user. Following is the UDF which will do the required filtering.</p>
 
 <pre>
 <code data-trim="" class="Java">
- def calculateCountryStats(parsedDstream:DStream[SensorRecord],windowInterval:Int,slideInterval:Int):DStream[String]=
+ def recentHours(hour:Int,inputDate:Date,input:Int):Boolean=
   {
-	val countryAggregation = parsedDstream.map(eachRec=&gt;((eachRec.dateTime,eachRec.country),1))
-	val resultStream = countryAggregation.window(Seconds(windowInterval),Seconds(slideInterval)).groupByKey()
-		.mapValues(_.size)
-	resultStream.map
-	{
-		case ((dateTime:DateTime,country:String),count:Int) =&gt; 
-				dateTime.toString("yyyy-MM-dd HH:mm:ss")+","+country+","+count
-	}
- }
+	val cal = Calendar.getInstance()
+	cal.setTimeInMillis(System.currentTimeMillis())
+	val presentHour = cal.get(Calendar.HOUR_OF_DAY)
+	val minHours = presentHour - input
+	val presentDate = new Date(cal.getTimeInMillis)
+	if(DateUtils.isSameDay(presentDate,inputDate)){
+	 if(hour&lt;=presentHour &amp;&amp; hour&gt;=minHours){
+	  true
+	   }else{
+		false
+	   }
+	 }else{
+		false
+	 }
+  }
 </code>
 </pre>
 
-<p>This function calculates country wise aggregations and returns back results in <em>csv</em> format.</p>
-
-<p>Function takes three parameters</p>
-
-<ol>
-  <li><em>parsedDstream</em> is the DStream of each record from input data mapped to SensorRecord object.</li>
-  <li><em>windowInterval</em> is the window for which aggregation is done.</li>
-  <li><em>slideInterval</em> is the slide time which controls slide interval inside a given window.</li>
-</ol>
-
-<p>Function returns DStream of String, and each record in output DStream will be in csv format <strong>2016-03-26 07:00:00,India,2</strong>, and they are self explainatory. Observe that we are having timestamps till hour.</p>
-
-<p>Similarly we will have two other functions to calculate <strong>State wise statistics</strong> and <strong>City wise statistics</strong>.</p>
-
-<p><strong>Output</strong></p>
-
-<p>Finally we will store the output into files using spark streaming API .</p>
+<p>The query to get the hourly aggregate looks as follows</p>
 
 <pre>
 <code data-trim="" class="Java">
- calculateCountryStats(parsedDstream,windowTime,slideTime).foreachRDD((outputRdd,time)=&gt;
- {
-	if(!outputRdd.isEmpty()) 
-	  outputRdd.saveAsTextFile(streamingConfig.getString("output-dir")+"/countryStats/"+time.toString())
+ sqlContext.sql(s"""select country,sum(count) from countrystats where validHours($recentHours,date,hour) 
+   group by country""").map(output=&gt;{
+	 output(0)+"\t"+output(1)
  })
-
 </code>
 </pre>
 
-<p>This completes the spark streaming side of coding where we read data and populate the hourly aggregates into files. In next blog we will see how we show these results in zeppelin.</p>
+<p>If you observe in the above query we have a placeholder <em>$recentHours</em> where user can give input. This denotes the number of recent hours user is interested to get results.</p>
 
-<p><em>For complete code refer</em> <strong><em>master branch</em></strong> <em>of <a href="https://github.com/Shasidhar/sensoranalytics">Sensor analytics</a> repository</em></p>
+<h3 id="hourly-aggregation-for-a-day">Hourly aggregation for a day</h3>
+
+<p>In this aggregate we want to show the count of an aggregate grouped by hours for a given day. As this is a straight forward problem we can directly use sql capabilites to show the results. The query looks as shown below.</p>
+
+<pre>
+<code data-trim="" class="Java">
+  %sql select hour,country,sum(count) as count from countrystats where date=${Input} group by hour,country
+</code>
+</pre>
+
+<p>Here also we have a place holder ${Input} which is where user can enter date for which report will be displayed.</p>
+
+<h3 id="weeklymonthly-aggregation">Weekly/Monthly aggregation</h3>
+
+<p>Similarly we will have two more queries for weekly and monthly aggregation.</p>
+
+<pre>
+<code data-trim="" class="Java">
+  %sql select weekofyear(date) as week,country,sum(count) as count from countrystats group by weekofyear(date),country
+  %sql select month(date) as month,country,sum(count) as count from countrystats group by month(date),country
+</code>
+</pre>
+
+<p>One thing to be observed in this case is, we are using all the built-in UDFs spark provides exactly the same way directly inside Zeppelin SQL prompt. This shows that how Zeppelin along with Spark, is easy to use and yet powerful for visualizing Bigdata.</p>
+
+<p>For complete code related to zeppelin, refer to <a href="https://github.com/Shasidhar/sensoranalytics/blob/kafka/core/src/main/resources/zepplin.txt">Zeppelin.txt</a></p>
+
+<p>This completes one complete iteration of our whole project. Till now we have discussed about reading and writing results with files using spark streaming file APIs. Along with usage of zeppelin to fetch these results and show in charts. So, next step in the series would be to integrate Kafka into the system.</p>
 
 
 
@@ -412,7 +412,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Building Spark Streaming App - Part 3 (First Iteration)', 'https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-3.html');
+    history.pushState({}, 'Building Spark Streaming App - Part 4 (Zeppelin Visualization)', 'https://shasidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html');
   }
 }
 </script>
@@ -429,14 +429,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/05/08/building-spark-streaming-app-part-2.html");
+        document.location.replace("/spark/2016/05/19/building-spark-streaming-app-part-3.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/05/19/building-spark-streaming-app-part-4.html");
+        document.location.replace("");
       
     });
   </script>
