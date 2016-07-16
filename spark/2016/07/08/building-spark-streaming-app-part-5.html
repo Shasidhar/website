@@ -177,7 +177,7 @@
             </small> -->
           </h4>
 
-          <p>In previous <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-4.html">blog</a> we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.</p>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html">blog</a> we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.</p>
 
 <h3 id="why-to-use-kafka">Why to use Kafka?</h3>
 <p>One of the major drawback of our application is, we are reading the data through filestreams, its always an issue if we use files as our input source for streaming application. One of the major drawback of file stream is, we cannot track how much of the data is processed by the streaming application in case of application crash. In order to be able to know how much data is exactly being processed in the streaming application we need an intelligent streaming data source where we should be able to track the progress.</p>

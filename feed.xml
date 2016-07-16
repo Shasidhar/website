@@ -10,7 +10,7 @@
 				<title>Building Spark Streaming App - Part 5 (Kafka Integration)</title>
 				
 				
-					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-4.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.&lt;/p&gt;
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.&lt;/p&gt;
 
 </description>
 				
