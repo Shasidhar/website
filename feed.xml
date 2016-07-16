@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building Spark Streaming App - Part 5 (Kafka Integration)</title>
+				
+				
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-4.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Fri, 08 Jul 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html</guid>
+			</item>
+		
+			<item>
 				<title>Building Spark Streaming App - Part 4 (Zeppelin Visualization)</title>
 				
 				
@@ -122,19 +135,6 @@
 				<pubDate>Sat, 31 Oct 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html</guid>
-			</item>
-		
-			<item>
-				<title>Zookeeper - Dynamic Configuration Source with Archaius</title>
-				
-				
-					<description>&lt;p&gt;Dynamic configuration is the ability to change the configuration while system is running. Archaius is the configuration management library which can retrieve properties from several sources and load them into the system dynamically.For a distributed system Apache Zookeeper is the default coordination service. This blog shows&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Tue, 27 Oct 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/zookeeper/2015/10/27/distributed-configuration-management-with-zookeeper.html</guid>
 			</item>
 		
 	</channel>
