@@ -7,6 +7,19 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Building Spark Streaming App - Part 6 (Cassandra Integration)</title>
+				
+				
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate kafka to our streaming engine as input source. The only part which we want to handle in a better way is to replace the output store where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Fri, 08 Jul 2016 03:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-6.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-6.html</guid>
+			</item>
+		
+			<item>
 				<title>Building Spark Streaming App - Part 5 (Kafka Integration)</title>
 				
 				
@@ -122,19 +135,6 @@
 				<pubDate>Tue, 03 Nov 2015 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html</guid>
-			</item>
-		
-			<item>
-				<title>Machine Learning in Spark</title>
-				
-				
-					<description>&lt;p&gt;In software industry with adoption of Hadoop, data scientists are in high demand. There is a well known fact that people from data science background always face difficulty to apply data science on bigdata due to lack of bigdata knowledge and people from programming background face the same when they try data science on bigdata due to lack of data science knowledge. Here we are seeing two different set of people whose end goal &lt;strong&gt;Machine Learning on Big Data&lt;/strong&gt; appears similar. So we try to solve this and give you the correct steps to get started in this regard.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Sat, 31 Oct 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/spark/2015/10/31/machine-learning-in-spark.html</guid>
 			</item>
 		
 	</channel>

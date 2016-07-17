@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2016/07/08/building-spark-streaming-app-part-5.html">
-  <title>Shashidhar  | Building Spark Streaming App - Part 5 (Kafka Integration)</title>
+  <link rel="canonical" href="/spark/2016/07/08/building-spark-streaming-app-part-6.html">
+  <title>Shashidhar  | Building Spark Streaming App - Part 6 (Cassandra Integration)</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,63 +170,129 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Building Spark Streaming App - Part 5 (Kafka Integration)</strong></h1>
+          <h1><strong>Building Spark Streaming App - Part 6 (Cassandra Integration)</strong></h1>
           <h4><strong>08 Jul 2016</strong>
-            <!-- <small> .  . <a href="/spark/2016/07/08/building-spark-streaming-app-part-5.html#disqus_thread">Comments</a>
+            <!-- <small> .  . <a href="/spark/2016/07/08/building-spark-streaming-app-part-6.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>In previous <a href="http://shashidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html">blog</a> we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.</p>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html">blog</a> we discussed about how we integrate kafka to our streaming engine as input source. The only part which we want to handle in a better way is to replace the output store where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra.</p>
 
-<h3 id="why-to-use-kafka">Why to use Kafka?</h3>
-<p>One of the major drawback of our application is, we are reading the data through filestreams, its always an issue if we use files as our input source for streaming application. One of the major drawback of file stream is, we cannot track how much of the data is processed by the streaming application in case of application crash. In order to be able to know how much data is exactly being processed in the streaming application we need an intelligent streaming data source where we should be able to track the progress.</p>
+<h3 id="why-to-use-cassandra">Why to use Cassandra?</h3>
+<p>Cassandra is the most widely used distributed data source in the industry. It can scale out very easily and handle huge amounts of data transfer very efficiently. In our case we need a better mechanism than files to over come latency of the reporting induced by files. WIth files as output , we always need a full file scan to retrieve results and we cannot directly do lookups.</p>
 
-<p>In order to overcome the issues which I explained above we need some intelligent input data source for our system. I think Kafka is one of the most popular streaming data source available today. So what exactly is kafka?  <strong>Apache kafka is a publish subscribe distributing messaging system</strong>.</p>
+<p>If we look into our results we really need a database which can handle timeseries data analysis, with cassandra data model we can easily achieve the time series aggregations very effectively.</p>
 
-<h3 id="kafka-as-an-input-source">Kafka as an input source</h3>
+<h3 id="cassandra-spark-integration">Cassandra Spark integration</h3>
 
-<p>In spark streaming we have a very good support to use kafka as in input source for streaming application. Spark has a built in support for kafka receiver, where we can use kafka’s topic as the source of streaming data. There are two different ways we can use kafka as a source,</p>
+<p>In spark we have a very good support to use cassandra as data source. Cassandra officially maintains a connector for spark and supports all the latest features of spark in this connector. At high level the connector handles data load from cassandra into spark as RDDs. Supports all data type conversions and supports advanced data types of cassandra too. All standard spark-sql queries can be directly executed on cassandra with this connector.</p>
+
+<p>For more information about spark cassandra connector use <a href="https://github.com/datastax/spark-cassandra-connector">link</a>.</p>
+
+<h3 id="cassandra-as-output-store">Cassandra as output store.</h3>
+
+<p>Now lets directly get into the business of working with cassandra. If we see our previous results that we have generated using files we generated hourly aggregations for different groups like city, state and country. Similarly we will have these hourly aggregations here also but as a tables inside cassandra now.</p>
+
+<p>In my <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">second blog</a> of this series we have discussed our output results will be three tables with following structure.</p>
 
 <ol>
-  <li>Receiver based approach</li>
-  <li>Direct approach</li>
+  <li>CountryWiseStats - (datetime,country.count)</li>
+  <li>StateWiseStats - (datetime,state.count)</li>
+  <li>CityWiseStats - (datetime,city,sensorstatus.count)</li>
 </ol>
 
-<p>In receiver based approach we use the traditional spark receivers to receive the data and process in spark streaming. Where as in direct approach we dont create spark receivers, but we pull the data periodically directly from kafka and process in spark side. With direct approach we get more advantages like <strong>Simplified paralellism</strong>, <strong>Efficiency</strong> and <strong>Exactly once semantics</strong>. For more details about the difference between these two approaches refer <a href="http://spark.apache.org/docs/latest/streaming-kafka-integration.html">Spark Streaming + Kafka Integration Guide</a></p>
-
-<h3 id="kafka-direct-receiver">Kafka direct receiver</h3>
-
-<p>In our application now its obvious to use kafka direct approach. To create kafka direct stream in spark there is a direct API.</p>
+<p>Now we want to connect with cassandra in spark and populate the results into these tables. The way we create cassandra data source in spark is.</p>
 
 <pre>
 <code data-trim="" class="Java">
-	KafkaUtils.createDirectStream[keytype, valuetype, keydecoder, valuedecoder](
-    	    streamingContext, kafkaParams, topicsSet)
+   sparkConf.set("spark.cassandra.connection.host", "127.0.0.1") // Set parameter into spark configuration
+   val sqlContext = SQLContext.getOrCreate(sparkContext)
 </code>
 </pre>
 
-<p>There are different parameters we need to pass in the above code snippet.</p>
+<p>Once we create the sqlContext with cassandra parameter in environment, we can directly read and write back data from casssandra to spark.</p>
 
-<ol>
-  <li><em>keytype</em> - Defines what is the type of key in Kafka topic</li>
-  <li><em>valuetype</em> - Defines what is the type of value in Kafka topic</li>
-  <li><em>keydecoder</em> - Controls how the key is decoded in spark side.</li>
-  <li><em>valuedecoder</em> - Controls how the value is decoded in spark side.</li>
-  <li><em>streamingContext</em> - It is the spark streaming context</li>
-  <li><em>kafkaParams</em> - Map of additional properties to connect with kafka. In our case we are passing <em>brokerids</em></li>
-  <li><em>topicsSet</em> - Set of topics from which we want to create input stream.</li>
-</ol>
+<pre>
+<code data-trim="" class="Java">
+   val countrystats = sqlContext.read.format("org.apache.spark.sql.cassandra").
+   options(Map( "table" -&gt; "countrystats", "keyspace" -&gt; "sensoranalytics")).load()
+</code>
+</pre>
 
-<p>The return type is a DStream[Key,Value] pair, where both key and value is of String type.</p>
+<p>The key point to observe in this change from files to cassandra as datastore is, how we store the results. In files we just calculate the aggregate and store into a file. Once we get into a database level, the way to store the results should change because there is no guarantee that for a given hour we get all the records in a single batch of streaming. Remember we generate the results from spark streaming application as hourly aggregates. So, we need to keep track of already existing aggregates for a given hour in database and update them if they exist or else create new entry.</p>
 
-<p>In our earlier receiver, that is file stream we were creating only the DStream[String]. Where String will be the actual content we want. In the new receiver we wanted only DStream[String] instead of DStream[Key,Value]. So in this case we can use map operation and project only the value out of these pair to get DStream[String].</p>
+<p>There are two possible ways to handle the updates. One way is to calculate aggregates for a given batch data and based on the aggregated data construct cassandra query and update the database. Second way is just read all the data from cassandra irrespective of what is being received in a batch and update and write back to cassandra. Within these options , its obvious that second is more memory consuming and not much effective so we will go with first approach. Following is the code sample for country stats aggregate calculations.</p>
 
-<p>Once we have the input DStream[String] we can use all other old code which we have for calculating the results and aggregates.</p>
+<pre>
+<code data-trim="" class="Java">
 
-<p><em>For complete code refer</em> <strong><em>kafka branch</em></strong> <em>of <a href="https://github.com/Shasidhar/sensoranalytics">Sensor analytics</a> repository</em></p>
+    val countryAggregation = dstream.map(sensorRec=&gt;((dateFormat.format(sensorRec.dateTime),sensorRec.country),1))
 
-<p>This completes one kafka integration with the spark streaming application. If you observe the code change we made to integrate with kafka , its only 4 or 5 lines of code change. This shows how much flexibile we can be with spark and work with different parts of the application in modular way. So, next step in the series would be to integrate Cassandra into the system.</p>
+    val resultStream = countryAggregation.window(Seconds(windowInterval),Seconds(slideInterval)).
+    	groupByKey().mapValues(_.size)
+
+    val joinStream = resultStream.transform(eachRdd=&gt;{
+      if(!eachRdd.isEmpty()){
+        val sqlContext = SQLContext.getOrCreate(eachRdd.sparkContext)
+        val datesList = eachRdd.map{
+          case ((date,country),count) =&gt; s"'$date'"
+        }.distinct().collect().toList.mkString(",")
+        val countryList = eachRdd.map{
+          case ((date,country),count) =&gt; s"'$country'"
+        }.distinct().collect().toList.mkString(",")
+
+        val options = Map("keyspace" -&gt; "sensoranalytics", "table" -&gt; "countrystats")
+        val countrystatsdf = dataLoader.getData(options,eachRdd.sparkContext).get
+
+        countrystatsdf.registerTempTable("countrystats")
+        val existingRdd = sqlContext.sql(s"select * from countrystats where date in ($datesList) and country in 
+          ($countryList)").map {
+          case Row(date: String, country: String, count: Int) =&gt; ((date, country), count)
+        }
+        eachRdd.union(existingRdd).reduceByKey(_+_)
+      }else{
+        eachRdd
+      }
+    })
+
+    joinStream.map{
+      case ((date,country),count) =&gt; CountryWiseStats(date,country,count)
+    }
+</code>
+</pre>
+
+<p>Here we are taking a <em>DStream[SensorRecord]</em> and populating the DStream[CountryWiseStats] which can be stored into cassandra. For other aggregates like stateWiseStats and cityWiseStats refer the <a href="https://github.com/Shasidhar/sensoranalytics">Github repo</a>.</p>
+
+<p>The way to store the results into cassandra is pretty straight forward. You can directly call a save method for any dataframe to save results.</p>
+
+<pre>
+<code data-trim="" class="Java">
+   countryStats.saveToCassandra("sensoranalytics","countrystats",SomeColumns("date","country","count"))
+</code>
+</pre>
+
+<h3 id="zeppelin-cassandra-integration">Zeppelin Cassandra integration</h3>
+
+<p>Once we change our output from files to cassandra we also need to modify zeppelin to read data from cassandra rather than files. With zeppelin the only code change we need to change is , the way of reading results and creating the initial dataframes for each aggregate. Cassandra connector has a direct method to read data from cassandra table and its exactly same as we have done earlier in spark streaming code.</p>
+
+<pre>
+<code data-trim="" class="Java">
+   val countryStatDF =  sc.cassandraTable("sensoranalytics","countrystats").map(row=&gt;{
+   val cal = Calendar.getInstance()
+   cal.setTimeInMillis(DateTimeFormat.forPattern(pattern).parseDateTime(row.get[String]("date")).getMillis)
+    countryStats(new Date(cal.getTimeInMillis),cal.get(Calendar.HOUR_OF_DAY),row.get[String]("country"),
+    row.get[Int]("count"))}).toDF
+</code>
+</pre>
+
+<p>In order to connect to cassandra and use cassandra libraries in Zeppelin we need to set cassandra into Zeppelin class path. Please refer to Readme in the <a href="https://github.com/Shasidhar/sensoranalytics/blob/master/README.md">github repo</a> for the classpath settings.</p>
+
+<p><em>For complete code refer</em> <strong><em>cassandra branch</em></strong> <em>of <a href="https://github.com/Shasidhar/sensoranalytics">Sensor analytics</a> repository</em></p>
+
+<p>In the repo there are some code snippets for testing the streaming application. Have a look on the tests of streaming code which is quite unconventional from the other unit tests. To give brief idea about testing streaming application, we need to keep track of clock which plays a key role in testing streaming application. Since time is the main factor in spark streaming framework for testing its better if we manage time rather than keep waits in test cases and wait for results.</p>
+
+<p>This completes my blog series on building end to end streaming application using apache spark. Hope you enjoyed and learnt basics of streaming application.</p>
 
 
 
@@ -365,7 +431,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Building Spark Streaming App - Part 5 (Kafka Integration)', 'https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html');
+    history.pushState({}, 'Building Spark Streaming App - Part 6 (Cassandra Integration)', 'https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-6.html');
   }
 }
 </script>
@@ -382,14 +448,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/05/19/building-spark-streaming-app-part-4.html");
+        document.location.replace("/spark/2016/07/08/building-spark-streaming-app-part-5.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/07/08/building-spark-streaming-app-part-6.html");
+        document.location.replace("");
       
     });
   </script>

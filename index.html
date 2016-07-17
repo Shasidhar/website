@@ -248,11 +248,11 @@ If you want to have a static message in your intro layout, disable the dynamic-t
         
         <h4> <strong> 08 Jul 2016 </strong>&nbsp;
           <!-- <small>.  .</small> -->
-          <strong> <a href="/spark/2016/07/08/building-spark-streaming-app-part-5.html">Building Spark Streaming App - Part 5 (Kafka Integration) </a> </strong>
-          <!-- <small> <a href="/spark/2016/07/08/building-spark-streaming-app-part-5.html#disqus_thread">Comments</a></small> -->
+          <strong> <a href="/spark/2016/07/08/building-spark-streaming-app-part-6.html">Building Spark Streaming App - Part 6 (Cassandra Integration) </a> </strong>
+          <!-- <small> <a href="/spark/2016/07/08/building-spark-streaming-app-part-6.html#disqus_thread">Comments</a></small> -->
         </h4>
 
-        <p>In previous blog we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system. Why to use Kafka? One of the major drawback of our application is, we are reading the data through filestreams, its always an issue if we use files as our input source for…</p>
+        <p>In previous blog we discussed about how we integrate kafka to our streaming engine as input source. The only part which we want to handle in a better way is to replace the output store where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra. Why to use Cassandra? Cassandra is the most widely used distributed…</p>
 
 
         <h4><a href="/blog/">View more posts</a></h4>
