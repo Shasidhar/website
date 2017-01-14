@@ -177,7 +177,7 @@
             </small> -->
           </h4>
 
-          <p>In previous <a href="http://shashidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html">blog</a> we discussed about how we integrate kafka to our streaming engine as input source. The only part which we want to handle in a better way is to replace the output store where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra.</p>
+          <p>In previous <a href="http://shashidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html">blog</a> we discussed about how we integrate kafka to our streaming engine as input source. Now our aim is to  handle output source in a better way ,where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So ,in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra.</p>
 
 <h3 id="why-to-use-cassandra">Why to use Cassandra?</h3>
 <p>Cassandra is the most widely used distributed data source in the industry. It can scale out very easily and handle huge amounts of data transfer very efficiently. In our case we need a better mechanism than files to over come latency of the reporting induced by files. WIth files as output , we always need a full file scan to retrieve results and we cannot directly do lookups.</p>
@@ -186,13 +186,13 @@
 
 <h3 id="cassandra-spark-integration">Cassandra Spark integration</h3>
 
-<p>In spark we have a very good support to use cassandra as data source. Cassandra officially maintains a connector for spark and supports all the latest features of spark in this connector. At high level the connector handles data load from cassandra into spark as RDDs. Supports all data type conversions and supports advanced data types of cassandra too. All standard spark-sql queries can be directly executed on cassandra with this connector.</p>
+<p>In spark we have a very good support to use cassandra as data source. Cassandra officially maintains a connector for spark and supports all the latest features of spark in this connector. At high level the connector handles data load from cassandra into spark as RDDs. It supports all data type conversions and advanced data types of cassandra too. All standard spark-sql queries can be directly executed on cassandra with this connector.</p>
 
 <p>For more information about spark cassandra connector use <a href="https://github.com/datastax/spark-cassandra-connector">link</a>.</p>
 
 <h3 id="cassandra-as-output-store">Cassandra as output store.</h3>
 
-<p>Now lets directly get into the business of working with cassandra. If we see our previous results that we have generated using files we generated hourly aggregations for different groups like city, state and country. Similarly we will have these hourly aggregations here also but as a tables inside cassandra now.</p>
+<p>Now let’s directly get into the business of working with cassandra. If we see our previous results that we have generated using files we generated hourly aggregations for different groups like city, state and country. Similarly we will have these hourly aggregations here also but as a tables inside cassandra now.</p>
 
 <p>In my <a href="http://shashidhare.com/spark/2016/05/08/building-spark-streaming-app-part-2.html">second blog</a> of this series we have discussed our output results will be three tables with following structure.</p>
 
@@ -222,7 +222,7 @@
 
 <p>The key point to observe in this change from files to cassandra as datastore is, how we store the results. In files we just calculate the aggregate and store into a file. Once we get into a database level, the way to store the results should change because there is no guarantee that for a given hour we get all the records in a single batch of streaming. Remember we generate the results from spark streaming application as hourly aggregates. So, we need to keep track of already existing aggregates for a given hour in database and update them if they exist or else create new entry.</p>
 
-<p>There are two possible ways to handle the updates. One way is to calculate aggregates for a given batch data and based on the aggregated data construct cassandra query and update the database. Second way is just read all the data from cassandra irrespective of what is being received in a batch and update and write back to cassandra. Within these options , its obvious that second is more memory consuming and not much effective so we will go with first approach. Following is the code sample for country stats aggregate calculations.</p>
+<p>There are two possible ways to handle the updates. One way is to calculate aggregates for a given batch data and based on the aggregated data ,construct cassandra query and update the database. Second way is just read all the data from cassandra irrespective of what is being received in a batch and update and write back to cassandra. Within these options , it’s obvious that second is more memory consuming and not much effective so we will go with first approach. Following is the code sample for country stats aggregate calculations.</p>
 
 <pre>
 <code data-trim="" class="Java">
@@ -274,7 +274,7 @@
 
 <h3 id="zeppelin-cassandra-integration">Zeppelin Cassandra integration</h3>
 
-<p>Once we change our output from files to cassandra we also need to modify zeppelin to read data from cassandra rather than files. With zeppelin the only code change we need to change is , the way of reading results and creating the initial dataframes for each aggregate. Cassandra connector has a direct method to read data from cassandra table and its exactly same as we have done earlier in spark streaming code.</p>
+<p>Once we change our output from files to cassandra we also need to modify zeppelin to read data from cassandra rather than files. With zeppelin the only thing we need to change is , the way of reading results and creating the initial dataframes for each aggregate. Cassandra connector has a direct method to read data from cassandra table and it’s exactly same as we have done earlier in spark streaming code.</p>
 
 <pre>
 <code data-trim="" class="Java">
@@ -290,7 +290,7 @@
 
 <p><em>For complete code refer</em> <strong><em>cassandra branch</em></strong> <em>of <a href="https://github.com/Shasidhar/sensoranalytics">Sensor analytics</a> repository</em></p>
 
-<p>In the repo there are some code snippets for testing the streaming application. Have a look on the tests of streaming code which is quite unconventional from the other unit tests. To give brief idea about testing streaming application, we need to keep track of clock which plays a key role in testing streaming application. Since time is the main factor in spark streaming framework for testing its better if we manage time rather than keep waits in test cases and wait for results.</p>
+<p>In the repo there are some code snippets for testing the streaming application. Have a look on the tests of streaming code which is quite unconventional from the other unit tests. To give brief idea about testing streaming application, we need to keep track of clock which plays a key role in testing streaming application. Since time is the main factor in spark streaming framework, for testing its better if we manage time rather than keeping waits in test cases and wait for results.</p>
 
 <p>This completes my blog series on building end to end streaming application using apache spark. Hope you enjoyed and learnt basics of streaming application.</p>
 
@@ -455,7 +455,7 @@ function addTohistory() {
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("");
+        document.location.replace("/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka.html");
       
     });
   </script>

@@ -7,10 +7,23 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
+				<title>Structured Streaming with Kafka - Basic</title>
+				
+				
+					<description>&lt;p&gt;In Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Sat, 14 Jan 2017 15:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka.html</guid>
+			</item>
+		
+			<item>
 				<title>Building Spark Streaming App - Part 6 (Cassandra Integration)</title>
 				
 				
-					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate kafka to our streaming engine as input source. The only part which we want to handle in a better way is to replace the output store where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra.&lt;/p&gt;
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate kafka to our streaming engine as input source. Now our aim is to  handle output source in a better way ,where we are still using files. From our last blog we understood that using files in a production system always creates a latency. So ,in our case we actually need a NoSQL database to store our results from streaming engine. In our case we will be using Cassandra.&lt;/p&gt;
 
 </description>
 				
@@ -23,7 +36,8 @@
 				<title>Building Spark Streaming App - Part 5 (Kafka Integration)</title>
 				
 				
-					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. You may be thinking we already have the complete working streaming application, why we need to develop more for the same application. From this blog its more of productionizing the application, where we solve some of the critical pieces in the system.&lt;/p&gt;
+					<description>&lt;p&gt;In previous &lt;a href=&quot;http://shashidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html&quot;&gt;blog&lt;/a&gt; we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. 
+As we have a completely working streaming application, from this blog let’s see how to productionize the application by solving some critical pieces of the system.&lt;/p&gt;
 
 </description>
 				
@@ -122,19 +136,6 @@
 				<pubDate>Wed, 20 Jan 2016 02:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html</guid>
-			</item>
-		
-			<item>
-				<title>Apache Spark Performance Tuning</title>
-				
-				
-					<description>&lt;p&gt;As we all know Apache Spark is the  most popular framework now a days for Big Data solutions, in this blog we will try to analyse different key factors that can be used to improve the performance of Spark applications in production.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Tue, 03 Nov 2015 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/spark/2015/11/03/apache-spark-performance-tuning.html</guid>
 			</item>
 		
 	</channel>

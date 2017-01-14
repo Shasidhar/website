@@ -17,8 +17,8 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark/2016/07/08/building-spark-streaming-app-part-5.html">
-  <title>Shashidhar  | Building Spark Streaming App - Part 5 (Kafka Integration)</title>
+  <link rel="canonical" href="/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka.html">
+  <title>Shashidhar  | Structured Streaming with Kafka - Basic</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,65 +170,113 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Building Spark Streaming App - Part 5 (Kafka Integration)</strong></h1>
-          <h4><strong>08 Jul 2016</strong>
-            <!-- <small> .  . <a href="/spark/2016/07/08/building-spark-streaming-app-part-5.html#disqus_thread">Comments</a>
+          <h1><strong>Structured Streaming with Kafka - Basic</strong></h1>
+          <h4><strong>14 Jan 2017</strong>
+            <!-- <small> .  . <a href="/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>In previous <a href="http://shashidhare.com/spark/2016/05/19/building-spark-streaming-app-part-4.html">blog</a> we discussed about how we integrate zeppelin to our streaming processing engine for visualizing the results. 
-As we have a completely working streaming application, from this blog let’s see how to productionize the application by solving some critical pieces of the system.</p>
+          <p>In Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.</p>
 
-<h3 id="why-to-use-kafka">Why to use Kafka?</h3>
-<p>One of the major drawbacks of our application is, we are reading the data through filestreams, it’s always an issue if we use files as our input source for streaming application. One of the major drawbacks of file stream is, we cannot track how much of the data is processed by the streaming application in case of application crash. In order to know how much data is exactly being processed in the streaming application ,we need an intelligent streaming data source where we should be able to track the progress.</p>
+<p>Before we see how to create data streams with kafka let us briefly understand the idea of Spark’s Structured streaming. The core idea of Structured streaming stands on concept called <strong>Repeated Queries (RQ)</strong>. RQ is a simple idea of running the same queries again and again. If we look into any streaming application this is what we do essentially. The new Structured streaming introduced in Spark 2.0 is based on RQ’s. For more details on Structured streaming APIs please look into the <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming</a> documentation.</p>
 
-<p>In order to overcome the issues which I explained above we need some intelligent input data source for our system we use Kafka. 
-Kafka is one of the most popular streaming data source available today. So what exactly is Kafka?  <strong>Apache Kafka is a publish subscribe distributing messaging system</strong>.</p>
+<p>Now we got a gist about the new strcutured streaming concept, lets see how can we create Kafka streams using this API. The examples in this blog will be comparing the different aspects of old DStream API with Structured Streaming API, hope that will help people to quickly start understanding the new APIs.</p>
 
-<h3 id="kafka-as-an-input-source">Kafka as an input source</h3>
+<p><strong>NOTE</strong> We will use kafka topic name as <em>blog</em> and kafka broker as <em>localhost:9092</em> in all the following examples.</p>
 
-<p>In spark streaming we have a very good support to use Kafka as input source for streaming application. Spark has a built in support for Kafka receiver, where we can use Kafka’s topic as the source of streaming data. There are two different ways we can use Kafka as a source,</p>
+<h3 id="ways-to-create-a-stream">Ways to create a Stream</h3>
+<p>In any streaming application, first thing we wanted to do is create a input stream. Lets see how can we create input stream in old and new ways</p>
+
+<h4 id="in-dstream-api">In DStream API</h4>
+<p>With respect to Kafka we can create input streams in two ways. <strong>Receiver Based approach</strong> and <strong>Direct approach</strong>. The main difference between these two approaches are in the way input data is fetched from Kafka into Spark, but once we receive the data everything else remains same for processing.</p>
+
+<p>For all the input streams we need following parameters. We will have a map of following parameters.</p>
 
 <ol>
-  <li>Receiver based approach</li>
-  <li>Direct approach</li>
+  <li>kafka.bootstrap.servers -&gt; localhost:9092</li>
+  <li>group.id -&gt; test</li>
+  <li>zkQuorum -&gt; localhost:2181</li>
 </ol>
 
-<p>In receiver based approach we use the traditional spark receivers to receive the data and process in spark streaming. Where as in direct approach we don’t create spark receivers, but we pull the data periodically directly from Kafka and process in spark side. With direct approach we get more advantages like <strong>Simplified paralellism</strong>, <strong>Efficiency</strong> and <strong>Exactly once semantics</strong>. For more details about the difference between these two approaches refer <a href="http://spark.apache.org/docs/latest/streaming-kafka-integration.html">Spark Streaming + Kafka Integration Guide</a></p>
+<p>Lets see how we use to create input DStreams.</p>
 
-<h3 id="kafka-direct-receiver">Kafka direct receiver</h3>
-
-<p>In our application now it’s obvious to use Kafka direct approach. To create Kafka direct stream in spark there is a direct API.</p>
-
+<p><strong>Receiver Based approach</strong></p>
 <pre>
 <code data-trim="" class="Java">
-	KafkaUtils.createDirectStream[keytype, valuetype, keydecoder, valuedecoder](
-    	    streamingContext, kafkaParams, topicsSet)
+   val kafkaStream = KafkaUtils.createStream(streamingContext,zkQuorum,group.id, Map[blog-&gt;1])
 </code>
 </pre>
 
-<p>There are different parameters we need to pass in the above code snippet.</p>
+<p>The last parameter <em>Map[blog-&gt;1]</em> indicates the partitions to be consumed from the topic blog. If we want to consume more topics we just have to add more entries into this map.</p>
 
-<ol>
-  <li><em>keytype</em> - Defines what is the type of key in Kafka topic</li>
-  <li><em>valuetype</em> - Defines what is the type of value in Kafka topic</li>
-  <li><em>keydecoder</em> - Controls how the key is decoded in spark side.</li>
-  <li><em>valuedecoder</em> - Controls how the value is decoded in spark side.</li>
-  <li><em>streamingContext</em> - It is the spark streaming context</li>
-  <li><em>kafkaParams</em> - Map of additional properties to connect with kafka. In our case we are passing <em>brokerids</em></li>
-  <li><em>topicsSet</em> - Set of topics from which we want to create input stream.</li>
-</ol>
+<p><strong>Direct approach</strong></p>
+<pre>
+<code data-trim="" class="Java">
+    val kafkaParams = Map[String, String]("metadata.broker.list" -&gt; localhost:9092)
+    val directKafkaStream = KafkaUtils.createDirectStream[
+     String, String, StringDecoder, StringDecoder](
+     streamingContext, kafkaParams, set("blog"))
+</code>
+</pre>
 
-<p>The return type is a DStream[Key,Value] pair, where both key and value is of String type.</p>
+<p>Here we have to specify key and value types of the data received, their decoders to be used and also set of topics to be consumed.</p>
 
-<p>In our earlier receiver, that is file stream we were creating only the DStream[String]. Where String will be the actual content we want. In the new receiver we wanted only DStream[String] instead of DStream[Key,Value]. So in this case we can use map operation and project only the value out of these pair to get DStream[String].</p>
+<p>These are the ways which we used till now to create DStreams from the kafka to process data in Spark. You can find more details about why there are two different ways to consume data from Kafka in <a href="https://spark.apache.org/docs/latest/streaming-kafka-0-8-integration.html">Spark Streaming Documentation</a></p>
 
-<p>Once we have the input DStream[String] we can use all other old code which we have for calculating the results and aggregates.</p>
+<p>Now lets shift our gears to see how to create input streams with Strucuted Streaming API.</p>
 
-<p><em>For complete code refer</em> <strong><em>kafka branch</em></strong> <em>of <a href="https://github.com/Shasidhar/sensoranalytics">Sensor analytics</a> repository</em></p>
+<h4 id="in-strucutred-streaming-api">In Strucutred Streaming API</h4>
+<p>If you have already used structured streaming APIs to create dataframes/datasets, there is not much difference between the creation of kafka input streams and dataframes infact.</p>
 
-<p>This completes one kafka integration with the spark streaming application. If you observe the changes we made to integrate with kafka , its only 4 or 5 lines of code change. This shows how much flexible we can be with spark and work with different parts of the application in modular way. So, next step in the series would be to integrate Cassandra into the system.</p>
+<p>Following code snippet shows how to create a <em>SparkSession</em> and then use it to create input stream of data. For better understanding on how to process a stream, I have added code to create a query which is <strong>RQ</strong> and generate output also.</p>
+
+<pre>
+<code data-trim="" class="java">
+    val spark = SparkSession
+      .builder()
+      .appName("Spark structured streaming Kafka example")
+      .master("local")
+      .getOrCreate()
+
+    val inputstream = spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "localhost:9092")
+        .option("subscribe", "blog")
+        .load()
+
+    val keyValueString = inputstream.selectExpr("CAST(key AS STRING)", "CAST( value AS STRING)").as[(String, String)]
+
+    val wordCounts = keyValueString.map(_._2.split(" ")).groupBy("value").count()
+
+    val query = wordCounts.writeStream
+        .outputMode("complete")
+        .format("console")
+        .start()
+
+    query.awaitTermination()        
+</code>
+</pre>
+
+<p>Lets understand what is happening in the above code snippet. First we created SparkSession. Using this session we created a DataStream from kafka for topic <em>blog</em>. Once we have the stream, we have to convert the data using standard data types. We are converting the input Key/Values to strings. Once we have the data in String, we can do any operation. Here I’m doing wordcount operation on <em>values</em>. Once we have the wordcounts we are writing results to cnosole.</p>
+
+<p>There are different ways we can generate the outputs from there Structured Streams. Here im generating the output in <em>complete</em> and writing to console. Which actually performs wordcounts for each batch and writes the counts to console. All the output modes which are supported in Structured Streaming APIs can also be used with respect to Kafka streams, for more details on output modes and how to use them refer <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes">Structured Streaming documentaion</a></p>
+
+<p>If you observe the last line, that is where we are informing spark to run all the computations for <em>query</em> are running repeatedly. Now we know how to create kafka streams in new APIs, lets see what are the variations/functionalities these APIs give to us apart from the existing functionalities. One area we want to discuss here is on <em>ways to run a streaming query</em></p>
+
+<h4 id="ways-to-run-streaming-query">Ways to run streaming query</h4>
+
+<p>In new API we can run a query indefinetly or we can also run it for one time. One time has a different meaning which we will explore in the below section.</p>
+
+<p><strong>Running Query indefinetely</strong></p>
+
+<p>We all know this type, normally this is the way any streaming application looks. We have also used this in our program above. To run a streaming processing repeatedly we have to use <em>query.awaitTermination()</em> which is exactly same as <em>SparkStreamingContext.awaitTermination()</em>.</p>
+
+<p><strong>Running Query one time</strong></p>
+
+<p>Lets say we want to run a streaming batch to consume all the existing data from Kafka and generate output. Earlier if we want to achieve this we use to start streaming program and stop gracefully. But now we have a ready API which we can use to run query to process existing data and continue other processing without stopping the context <em>query.processAllAvailable()</em>.This is useful for various applications.</p>
+
+<p>Hope this blog helps you to get started with the Structured Streaming APIs on Kafka. In the next blog we will see what are the different variations in Kafka streams and how we can do offset management with strucuted streaming APIs.</p>
 
 
 
@@ -367,7 +415,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Building Spark Streaming App - Part 5 (Kafka Integration)', 'https://shasidhare.com/spark/2016/07/08/building-spark-streaming-app-part-5.html');
+    history.pushState({}, 'Structured Streaming with Kafka - Basic', 'https://shasidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka.html');
   }
 }
 </script>
@@ -384,14 +432,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/05/19/building-spark-streaming-app-part-4.html");
+        document.location.replace("/spark/2016/07/08/building-spark-streaming-app-part-6.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/07/08/building-spark-streaming-app-part-6.html");
+        document.location.replace("");
       
     });
   </script>
