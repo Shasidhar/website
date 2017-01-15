@@ -7,7 +7,7 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
-				<title>Structured Streaming with Kafka - Basic</title>
+				<title>Structured Streaming with Kafka - Basics</title>
 				
 				
 					<description>&lt;p&gt;In Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.&lt;/p&gt;
