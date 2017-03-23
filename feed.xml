@@ -7,10 +7,23 @@
 		<atom:link href="https://shasidhare.com/feed.xml" rel="self" type="application/rss+xml" />
 		
 			<item>
-				<title>Structured Streaming with Kafka - Basics</title>
+				<title>Structured Streaming with Kafka - Advanced</title>
 				
 				
-					<description>&lt;p&gt;In Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.&lt;/p&gt;
+					<description>&lt;p&gt;In the last blog we discussed about what are the ways to interact with Kafka using Spark Structured Streaming APIs.In this blog we will look into more details of the API and also different type of functionalities we get from the new API. If you havent read last blog, I advice you to go through &lt;a href=&quot;http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html&quot;&gt;Structured Streaming with Kafka - Basics&lt;/a&gt; before going forward.&lt;/p&gt;
+
+</description>
+				
+				<pubDate>Thu, 23 Mar 2017 15:02:27 +0530</pubDate>
+				<link>https://shasidhare.com/spark,/kafka/2017/03/23/spark-structured-streaming-with-kafka-advanced.html</link>
+				<guid isPermaLink="true">https://shasidhare.com/spark,/kafka/2017/03/23/spark-structured-streaming-with-kafka-advanced.html</guid>
+			</item>
+		
+			<item>
+				<title>Structured Streaming with Kafka - Advanced</title>
+				
+				
+					<description>&lt;p&gt;In previous blog we have discussed on basics of Structured Streaming with Kafka, which is mainly focussed on getting started with Kafka streams with new APIs. Before going through this blog, I strongly suggest you to go through it &lt;a href=&quot;http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html&quot;&gt;link&lt;/a&gt;. In this blog we will discuss in depth about kafka offset management with Strucutured Streaming APIs.&lt;/p&gt;
 
 </description>
 				
@@ -123,19 +136,6 @@ As we have a completely working streaming application, from this blog let’s se
 				<pubDate>Sat, 05 Mar 2016 03:02:27 +0530</pubDate>
 				<link>https://shasidhare.com/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html</link>
 				<guid isPermaLink="true">https://shasidhare.com/spark/2016/03/05/zookeeper-offset-management-in-kafka-direct-stream.html</guid>
-			</item>
-		
-			<item>
-				<title>Unit testing Spark Streaming Receiver</title>
-				
-				
-					<description>&lt;p&gt;Spark is the most popular platform for all  Bigdata needs now a days. As per the recent trend, Spark is  defacto for Bigdata needs and quite popular in production as well. What I really mean is, people are pretty comfortable with the development of Spark solutions as Spark exposes pretty simple and powerful API&amp;#8217;s for the programmers to work with. But there are many more things in a Software process , like testing, code quality checks etc. But being developers we need to show how our code can be tested through some basic Unit tests. This blog tends to focus on Unit testing Spark.&lt;/p&gt;
-
-</description>
-				
-				<pubDate>Wed, 20 Jan 2016 02:02:27 +0530</pubDate>
-				<link>https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html</link>
-				<guid isPermaLink="true">https://shasidhare.com/spark/2016/01/20/unit-test-spark-streaming-receiver.html</guid>
 			</item>
 		
 	</channel>

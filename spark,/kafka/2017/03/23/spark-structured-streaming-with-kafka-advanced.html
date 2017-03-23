@@ -17,7 +17,7 @@
   <meta name="description" content="Blog and website of Shashidhar, blogging mainly for tech. Opinions expressed are mine.">
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
-  <link rel="canonical" href="/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">
+  <link rel="canonical" href="/spark,/kafka/2017/03/23/spark-structured-streaming-with-kafka-advanced.html">
   <title>Shashidhar  | Structured Streaming with Kafka - Advanced</title>
 
   <!-- Bootstrap Core CSS -->
@@ -171,67 +171,26 @@
 
 
           <h1><strong>Structured Streaming with Kafka - Advanced</strong></h1>
-          <h4><strong>14 Jan 2017</strong>
-            <!-- <small> .  . <a href="/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html#disqus_thread">Comments</a>
+          <h4><strong>23 Mar 2017</strong>
+            <!-- <small> .  . <a href="/spark,/kafka/2017/03/23/spark-structured-streaming-with-kafka-advanced.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>In previous blog we have discussed on basics of Structured Streaming with Kafka, which is mainly focussed on getting started with Kafka streams with new APIs. Before going through this blog, I strongly suggest you to go through it <a href="http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">link</a>. In this blog we will discuss in depth about kafka offset management with Strucutured Streaming APIs.</p>
+          <p>In the last blog we discussed about what are the ways to interact with Kafka using Spark Structured Streaming APIs.In this blog we will look into more details of the API and also different type of functionalities we get from the new API. If you havent read last blog, I advice you to go through <a href="http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">Structured Streaming with Kafka - Basics</a> before going forward.</p>
 
-<p>Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.</p>
-
-<p>Before we see how to create data streams with kafka let us briefly understand the idea of Spark’s Structured streaming. The core idea of Structured streaming stands on concept called <strong>Repeated Queries (RQ)</strong>. RQ is a simple idea of running the same queries again and again. If we look into any streaming application this is what we do essentially. The new Structured streaming introduced in Spark 2.0 is based on RQ’s. For more details on Structured streaming APIs please look into the <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming</a> documentation.</p>
-
-<p>Now we got a gist about the new structured streaming concept, let’s see how we can create Kafka streams using this API. The examples in this blog will be comparing the different aspects of old DStream API with Structured Streaming API, hope that will help people to quickly start understanding the new APIs.</p>
-
-<p><strong>NOTE</strong> We will use kafka topic name as <em>blog</em> and kafka broker as <em>localhost:9092</em> in all the following examples.</p>
-
-<h3 id="ways-to-create-a-stream">Ways to create a Stream</h3>
-<p>In any streaming application, first thing we wanted to do is create an input stream. Let’s see how we can create input stream in old and new ways</p>
-
-<h4 id="in-dstream-api">In DStream API</h4>
-<p>With respect to Kafka we can create input streams in two ways. <strong>Receiver Based approach</strong> and <strong>Direct approach</strong>. The main difference between these are in the way input data is fetched from Kafka into Spark, but once we receive the data everything else remains same for processing.</p>
-
-<p>For all the input streams we need following parameters. We will have a map of following parameters.</p>
+<p>There are three different variations for creating Kafka streams using structured streaming APIs. They are :</p>
 
 <ol>
-  <li>kafka.bootstrap.servers -&gt; localhost:9092</li>
-  <li>group.id -&gt; test</li>
-  <li>zkQuorum -&gt; localhost:2181</li>
+  <li>Using <em>subscribe</em></li>
+  <li>Using <em>subscribePattern</em></li>
+  <li>Using <em>assign</em></li>
 </ol>
 
-<p>Let’s see how we use to create input DStreams.</p>
+<p>Lets go through one by one in detail</p>
 
-<p><strong>Receiver Based approach</strong></p>
-<pre>
-<code data-trim="" class="Java">
-   val kafkaStream = KafkaUtils.createStream(streamingContext,zkQuorum,group.id, Map[blog-&gt;1])
-</code>
-</pre>
-
-<p>The last parameter <em>Map[blog-&gt;1]</em> indicates the partitions to be consumed from the topic blog. If we want to consume more topics we just have to add more entries into this map.</p>
-
-<p><strong>Direct approach</strong></p>
-<pre>
-<code data-trim="" class="Java">
-    val kafkaParams = Map[String, String]("metadata.broker.list" -&gt; localhost:9092)
-    val directKafkaStream = KafkaUtils.createDirectStream[
-     String, String, StringDecoder, StringDecoder](
-     streamingContext, kafkaParams, set("blog"))
-</code>
-</pre>
-
-<p>Here we have to specify key and value types of the data received, their decoders to be used and also set of topics to be consumed.</p>
-
-<p>These are the ways which we used till now to create DStreams from the kafka to process data in Spark. You can find more details about these two different ways to consume data from Kafka in <a href="https://spark.apache.org/docs/latest/streaming-kafka-0-8-integration.html">Spark Streaming Documentation</a></p>
-
-<p>Now let’s shift our gears to see how to create input streams with Structured Streaming API.</p>
-
-<h4 id="in-structured-streaming-api">In Structured Streaming API</h4>
-<p>If you have already used structured streaming APIs to create dataframes/datasets, you won’t find much difference between creation of kafka input streams and dataframes.</p>
-
-<p>Following code snippet shows how to create a <em>SparkSession</em> and then use it to create input stream of data. For better understanding on how to process a stream, I have added code to create a query which is <strong>RQ</strong> and generate output also.</p>
+<h3 id="using-subscribe">Using <em>subscribe</em></h3>
+<p>This is the easiest way to create a kafka stream, we just need to give comma separated topic list while creating stream.</p>
 
 <pre>
 <code data-trim="" class="java">
@@ -245,40 +204,109 @@
         .format("kafka")
         .option("kafka.bootstrap.servers", "localhost:9092")
         .option("subscribe", "blog")
-        .load()
-
-    val keyValueString = inputstream.selectExpr("CAST(key AS STRING)", "CAST( value AS STRING)").as[(String, String)]
-
-    val wordCounts = keyValueString.map(_._2.split(" ")).groupBy("value").count()
-
-    val query = wordCounts.writeStream
-        .outputMode("complete")
-        .format("console")
-        .start()
-
-    query.awaitTermination()        
+        .load()     
 </code>
 </pre>
 
-<p>Let’s understand what is happening in the above code snippet. First we created SparkSession. Using this session we created a DataStream from kafka for topic <em>blog</em>. Once we have the stream, we have to convert the data using standard data types. We are converting the input Key/Values to strings. Once we have the data in String, we can do any operation. Here I’m doing wordcount operation on <em>values</em>. Once we have the wordcounts we are writing results to console.</p>
+<h3 id="using-subscribepattern">Using <em>subscribePattern</em></h3>
+<p>Here we can specify a regex to match topic names in kafka servers. All the topics matched by regex will be used to create data stream.</p>
 
-<p>There are different ways we can generate the outputs from these Structured Streams. Here I’m generating the output in <em>complete</em> and writing to console. Which actually performs wordcounts for each batch and writes the counts to console. All the output modes which are supported in Structured Streaming APIs can also be used with respect to Kafka streams, for more details on output modes and how to use them refer <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes">Structured Streaming documentaion</a></p>
+<pre>
+<code data-trim="" class="java">
+    val spark = SparkSession
+      .builder()
+      .appName("Spark structured streaming Kafka example")
+      .master("local")
+      .getOrCreate()
 
-<p>If you observe the last line, that is where we are informing spark to run all the computations for <em>query</em> are running repeatedly. Now we have seen how to create kafka streams in new APIs, let’s see what are the variations/functionalities these APIs gives us apart from the existing functionalities. One functionality I will  be discussing  here is on <em>ways to run a streaming query</em></p>
+    val inputstream = spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "localhost:9092")
+        .option("subscribePattern", "\Mi\S*")
+        .load()     
+</code>
+</pre>
 
-<h4 id="ways-to-run-streaming-query">Ways to run streaming query</h4>
+<p>This will fetch data from all the topics with names starting from <em>Mi</em>.</p>
 
-<p>In new API we can run a query indefinitely or we can also run it for one time. <em>One time</em> has a different meaning which we will explore in the below section.</p>
+<h3 id="using-assign">Using <em>assign</em></h3>
+<p>This is the most efficient from the perspective of selecting the partitions from kafka topics. In <em>assign</em> we can specify the partition numbers explicitly to fetch data from the topics. It is not directly possible with the DStream APIs which gives more power to the developer to go into the partition level selection while fetching data from Kafka topics.</p>
 
-<p><strong>Running Query indefinitely</strong></p>
+<pre>
+<code data-trim="" class="java">
+    val spark = SparkSession
+      .builder()
+      .appName("Spark structured streaming Kafka example")
+      .master("local")
+      .getOrCreate()
 
-<p>We all know this type, normally this is the way any streaming application looks. We have also used this in our program above. To run a streaming processing repeatedly we have to use <em>query.awaitTermination()</em> which is exactly same as <em>SparkStreamingContext.awaitTermination()</em>.</p>
+    val inputstream = spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "localhost:9092")
+        .option("assign", "{\"topicA\":[0,1],\"topicB\":[2,4]}")
+        .load()     
+</code>
+</pre>
 
-<p><strong>Running Query one time</strong></p>
+<p>We need to spicify the topic partitions in a JSON string format.</p>
 
-<p>Let’s say we want to run a streaming batch to consume all the existing data from Kafka and generate output. Earlier if we want to achieve this we use to start streaming program and stop gracefully. But now we have a ready API which we can use to run query to process existing data and continue other processing without stopping the context <em>query.processAllAvailable()</em>.This is useful for various applications.</p>
+<h3 id="offset-management-with-structured-streams">Offset Management with Structured Streams</h3>
 
-<p>Hope this blog helps you to get started with the Structured Streaming APIs on Kafka. In the next blog we will see what are the different variations in Kafka streams and how we can do offset management with structured streaming APIs.</p>
+<p>Now that we have seen different ways of creating kafka streams, lets go one level down into kafka offsets. To understand better, i will do a comparision of old DStream API way of fetching data from specific offset with new APIs</p>
+
+<h4 id="in-dstream-api">In DStream API</h4>
+<p>In DStream API we have the flexibility of fetching data from the selective offset in kafka topic by only using Kafka Direct stream API. We have to create a map of topics and partitions first, then use this Map while creating the Kafka direct stream</p>
+
+<pre>
+<code data-trim="" class="java">
+    val topicPartitionTuple = new TopicPartition("topicOne", 1)
+    val topicPartitionMap = Map[TopicPartition,Long](topicPartitionTuple-&gt; 0)
+
+    val data = KafkaUtils.createDirectStream[String, String](
+      ssc,
+      PreferConsistent,
+      Assign[String, String](Array(topicPartitionTuple).toIterable,
+       kafkaMap, topicPartitionMap)
+    )  
+</code>
+</pre>
+
+<p>In the above code snippet, we have two numbers 1 and 0. 1 represents the parition number of topic. 0 represents the offset for the partition 1. As we see this its clearly a not very straight forward.</p>
+
+<h4 id="in-structured-streaming-api">In Structured Streaming API</h4>
+<p>Once you come to structured streaming API, its pretty easy to achieve the above mentioned scenario. We can easily specify everything in a JSON string and create the data stream from the specific paritions and specific offsets for the topic.</p>
+
+<pre>
+<code data-trim="" class="java">
+    val spark = SparkSession
+      .builder()
+      .appName("Spark structured streaming Kafka example")
+      .master("local")
+      .getOrCreate()
+
+    val inputstream = spark.readStream
+        .format("kafka")
+        .option("kafka.bootstrap.servers", "localhost:9092")
+        .option("subscribe", "blog")
+        .option("startingOffsets", "{\"blog\":{\"0\":23,\"1\":-1}}")
+        .load()     
+</code>
+</pre>
+
+<p>Here we have to use <em>startionOffsets</em> option, it takes a JSON formatted string of topic name with pairs of paritons and respective offsets. If you dont want to specify this type of offsets , you can just have <em>earliest or latest</em> as value for <em>startionOffsets</em> option.</p>
+
+<p>Along with the above mentioned features in Structured Streaming API for Kafka, there are some interesting new options available. I will explain briefly about them in below section</p>
+
+<ol>
+  <li>
+    <p><em>failOnDataLoss</em> - This will fail your query when data is not received from kafka. This is a good option for the program to detect failure in source. We can use this to easily determine where the problem lies. this was a difficult situaion in old APIs to have.</p>
+  </li>
+  <li>
+    <p><em>maxOffsetsPerTrigger</em> - As the name suggests we can control the number of offsets in trigger interval. You have to remember if we dont set this value we will hit bottle necks in the data processing. It is an efficient option in a way from which we can control the overloading of the data in spark streaming programs.</p>
+  </li>
+</ol>
+
+<p>Hope this blog helps you to know more about Structured Streaming APIs on Kafka. It is clearly reflecting in the APIs that, using Structured Streaming APIs we can easily create next level of streaming applicaitons with having Kafka as a streaming data source</p>
 
 
 
@@ -417,7 +445,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Structured Streaming with Kafka - Advanced', 'https://shasidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html');
+    history.pushState({}, 'Structured Streaming with Kafka - Advanced', 'https://shasidhare.com/spark,/kafka/2017/03/23/spark-structured-streaming-with-kafka-advanced.html');
   }
 }
 </script>
@@ -434,14 +462,14 @@ function addTohistory() {
     new Hammer(post).on('swipeleft', function(event) {
       addTohistory();
       
-        document.location.replace("/spark/2016/07/08/building-spark-streaming-app-part-6.html");
+        document.location.replace("/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html");
       
     });
 
     new Hammer(post).on('swiperight', function(event) {
       addTohistory();
       
-        document.location.replace("/spark,/kafka/2017/03/23/spark-structured-streaming-with-kafka-advanced.html");
+        document.location.replace("");
       
     });
   </script>
