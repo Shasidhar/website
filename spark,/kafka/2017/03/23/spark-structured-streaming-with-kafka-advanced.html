@@ -177,7 +177,7 @@
             </small> -->
           </h4>
 
-          <p>In the last blog we discussed about what are the ways to interact with Kafka using Spark Structured Streaming APIs.In this blog we will look into more details of the API and also different type of functionalities we get from the new API. If you havent read last blog, I advice you to go through <a href="http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">Structured Streaming with Kafka - Basics</a> before going forward.</p>
+          <p>In the last blog we discussed about different ways to interact with Kafka using Spark Structured Streaming APIs.In this blog we will check out more details of the API and also different types of functionalities we get from the new API. If you haven’t read last blog, I suggest you to go through <a href="http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">Structured Streaming with Kafka - Basics</a> before going forward.</p>
 
 <p>There are three different variations for creating Kafka streams using structured streaming APIs. They are :</p>
 
@@ -187,7 +187,7 @@
   <li>Using <em>assign</em></li>
 </ol>
 
-<p>Lets go through one by one in detail</p>
+<p>Let’s go through one by one in detail</p>
 
 <h3 id="using-subscribe">Using <em>subscribe</em></h3>
 <p>This is the easiest way to create a kafka stream, we just need to give comma separated topic list while creating stream.</p>
@@ -230,7 +230,7 @@
 <p>This will fetch data from all the topics with names starting from <em>Mi</em>.</p>
 
 <h3 id="using-assign">Using <em>assign</em></h3>
-<p>This is the most efficient from the perspective of selecting the partitions from kafka topics. In <em>assign</em> we can specify the partition numbers explicitly to fetch data from the topics. It is not directly possible with the DStream APIs which gives more power to the developer to go into the partition level selection while fetching data from Kafka topics.</p>
+<p>This is the most efficient in the perspective of selecting the partitions from kafka topics. In <em>assign</em> we can specify the partition numbers explicitly to fetch data from the topics. It is not directly possible with the DStream APIs which gives more power to the developer to go into the partition level selection while fetching data from Kafka topics.</p>
 
 <pre>
 <code data-trim="" class="java">
@@ -248,11 +248,11 @@
 </code>
 </pre>
 
-<p>We need to spicify the topic partitions in a JSON string format.</p>
+<p>We need to specify the topic partitions in a JSON string format.</p>
 
 <h3 id="offset-management-with-structured-streams">Offset Management with Structured Streams</h3>
 
-<p>Now that we have seen different ways of creating kafka streams, lets go one level down into kafka offsets. To understand better, i will do a comparision of old DStream API way of fetching data from specific offset with new APIs</p>
+<p>Now that we have seen different ways of creating kafka streams, let’s go one level down into kafka offsets. To understand better, I will do a comparison of old DStream API way of fetching data from specific offset with new APIs</p>
 
 <h4 id="in-dstream-api">In DStream API</h4>
 <p>In DStream API we have the flexibility of fetching data from the selective offset in kafka topic by only using Kafka Direct stream API. We have to create a map of topics and partitions first, then use this Map while creating the Kafka direct stream</p>
@@ -271,10 +271,9 @@
 </code>
 </pre>
 
-<p>In the above code snippet, we have two numbers 1 and 0. 1 represents the parition number of topic. 0 represents the offset for the partition 1. As we see this its clearly a not very straight forward.</p>
-
-<h4 id="in-structured-streaming-api">In Structured Streaming API</h4>
-<p>Once you come to structured streaming API, its pretty easy to achieve the above mentioned scenario. We can easily specify everything in a JSON string and create the data stream from the specific paritions and specific offsets for the topic.</p>
+<p>In the above code snippet, we have two numbers 1 and 0. 1 represents the parition number of topic and 0 represents the offset for the partition 1. As we see, this is not very clearly  straight forward. 
+####In Structured Streaming API
+Once you come to structured streaming API, it’s pretty easy to achieve the above mentioned scenario. We can easily specify everything in a JSON string and create the data stream from the specific partitions and specific offsets for the topic.</p>
 
 <pre>
 <code data-trim="" class="java">
@@ -293,20 +292,20 @@
 </code>
 </pre>
 
-<p>Here we have to use <em>startionOffsets</em> option, it takes a JSON formatted string of topic name with pairs of paritons and respective offsets. If you dont want to specify this type of offsets , you can just have <em>earliest or latest</em> as value for <em>startionOffsets</em> option.</p>
+<p>Here we have to use <em>startionOffsets</em> option, it takes a JSON formatted string of topic name with pairs of paritons and respective offsets. If you don’t want to specify this type of offsets , you can just have <em>earliest or latest</em> as value for <em>startionOffsets</em> option.</p>
 
 <p>Along with the above mentioned features in Structured Streaming API for Kafka, there are some interesting new options available. I will explain briefly about them in below section</p>
 
 <ol>
   <li>
-    <p><em>failOnDataLoss</em> - This will fail your query when data is not received from kafka. This is a good option for the program to detect failure in source. We can use this to easily determine where the problem lies. this was a difficult situaion in old APIs to have.</p>
+    <p><em>failOnDataLoss</em> - This will fail your query when data is not received from kafka. This is a good option for the program to detect failure in source. We can use this to easily determine where the problem lies, this was a difficult situation in old APIs to have.</p>
   </li>
   <li>
-    <p><em>maxOffsetsPerTrigger</em> - As the name suggests we can control the number of offsets in trigger interval. You have to remember if we dont set this value we will hit bottle necks in the data processing. It is an efficient option in a way from which we can control the overloading of the data in spark streaming programs.</p>
+    <p><em>maxOffsetsPerTrigger</em> - As the name suggests we can control the number of offsets in trigger interval. You have to remember if we don’t set this value we will hit bottlenecks in the data processing. It is an efficient option in a way from which we can control the overloading of the data in spark streaming programs.</p>
   </li>
 </ol>
 
-<p>Hope this blog helps you to know more about Structured Streaming APIs on Kafka. It is clearly reflecting in the APIs that, using Structured Streaming APIs we can easily create next level of streaming applicaitons with having Kafka as a streaming data source</p>
+<p>Hope this blog helps you to know more about Structured Streaming APIs on Kafka. It is clearly reflected in the APIs that, using Structured Streaming APIs we can easily create the next level of streaming applications by having Kafka as a streaming data source</p>
 
 
 
