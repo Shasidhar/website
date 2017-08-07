@@ -20,10 +20,10 @@
 			</item>
 		
 			<item>
-				<title>Structured Streaming with Kafka - Advanced</title>
+				<title>Structured Streaming with Kafka - Basics</title>
 				
 				
-					<description>&lt;p&gt;In previous blog we have discussed on basics of Structured Streaming with Kafka, which is mainly focussed on getting started with Kafka streams with new APIs. Before going through this blog, I strongly suggest you to go through it &lt;a href=&quot;http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html&quot;&gt;link&lt;/a&gt;. In this blog we will discuss in depth about kafka offset management with Strucutured Streaming APIs.&lt;/p&gt;
+					<description>&lt;p&gt;In Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.&lt;/p&gt;
 
 </description>
 				

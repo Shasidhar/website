@@ -18,7 +18,7 @@
   <meta name="author" content="Shashidhar">
   <meta name="keywords" content="">
   <link rel="canonical" href="/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">
-  <title>Shashidhar  | Structured Streaming with Kafka - Advanced</title>
+  <title>Shashidhar  | Structured Streaming with Kafka - Basics</title>
 
   <!-- Bootstrap Core CSS -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
@@ -170,16 +170,14 @@
 <!-- Swipe Instructions End -->
 
 
-          <h1><strong>Structured Streaming with Kafka - Advanced</strong></h1>
+          <h1><strong>Structured Streaming with Kafka - Basics</strong></h1>
           <h4><strong>14 Jan 2017</strong>
             <!-- <small> .  . <a href="/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html#disqus_thread">Comments</a>
             
             </small> -->
           </h4>
 
-          <p>In previous blog we have discussed on basics of Structured Streaming with Kafka, which is mainly focussed on getting started with Kafka streams with new APIs. Before going through this blog, I strongly suggest you to go through it <a href="http://shashidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html">link</a>. In this blog we will discuss in depth about kafka offset management with Strucutured Streaming APIs.</p>
-
-<p>Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.</p>
+          <p>In Spark latest distribution, we have got a support for Kafka over Structured Streaming APIs. I think this is the critical piece for most of the people out there who want to use/experiment with the Structured Streaming for building streaming application. Reason being, Kafka is the defacto standard to be used as a streaming source. In this blog we will discuss about how to create Streaming pipelines with Kafka using Structured Streaming APIs.</p>
 
 <p>Before we see how to create data streams with kafka let us briefly understand the idea of Spark’s Structured streaming. The core idea of Structured streaming stands on concept called <strong>Repeated Queries (RQ)</strong>. RQ is a simple idea of running the same queries again and again. If we look into any streaming application this is what we do essentially. The new Structured streaming introduced in Spark 2.0 is based on RQ’s. For more details on Structured streaming APIs please look into the <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html">Spark Structured Streaming</a> documentation.</p>
 
@@ -262,7 +260,7 @@
 
 <p>Let’s understand what is happening in the above code snippet. First we created SparkSession. Using this session we created a DataStream from kafka for topic <em>blog</em>. Once we have the stream, we have to convert the data using standard data types. We are converting the input Key/Values to strings. Once we have the data in String, we can do any operation. Here I’m doing wordcount operation on <em>values</em>. Once we have the wordcounts we are writing results to console.</p>
 
-<p>There are different ways we can generate the outputs from these Structured Streams. Here I’m generating the output in <em>complete</em> and writing to console. Which actually performs wordcounts for each batch and writes the counts to console. All the output modes which are supported in Structured Streaming APIs can also be used with respect to Kafka streams, for more details on output modes and how to use them refer <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes">Structured Streaming documentaion</a></p>
+<p>There are different ways we can generate the outputs from there Structured Streams. Here I’m generating the output in <em>complete</em> and writing to console. Which actually performs wordcounts for each batch and writes the counts to console. All the output modes which are supported in Structured Streaming APIs can also be used with respect to Kafka streams, for more details on output modes and how to use them refer <a href="http://spark.apache.org/docs/latest/structured-streaming-programming-guide.html#output-modes">Structured Streaming documentaion</a></p>
 
 <p>If you observe the last line, that is where we are informing spark to run all the computations for <em>query</em> are running repeatedly. Now we have seen how to create kafka streams in new APIs, let’s see what are the variations/functionalities these APIs gives us apart from the existing functionalities. One functionality I will  be discussing  here is on <em>ways to run a streaming query</em></p>
 
@@ -417,7 +415,7 @@ $(window).scroll(toggleNavCollapse);$(function(){$("a.page-scroll").bind("click"
 <script>
 function addTohistory() {
   if (!window.location.host.startsWith("127.0.0.1")) {
-    history.pushState({}, 'Structured Streaming with Kafka - Advanced', 'https://shasidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html');
+    history.pushState({}, 'Structured Streaming with Kafka - Basics', 'https://shasidhare.com/spark,/kafka/2017/01/14/spark-structured-streaming-with-kafka-basic.html');
   }
 }
 </script>
